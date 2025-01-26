@@ -8,7 +8,16 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
-    "noUncheckedSideEffectImports": true
+    "noUncheckedSideEffectImports": true,
+    "paths": {
+      "@/*": ["src/*"],
+      "@App/*": ["src/app/*"],
+      "@Shared/*": ["src/shared/*"],
+      "@Entities/*": ["src/entities/*"],
+      "@Features/*": ["src/features/*"],
+      "@Widgets/*": ["src/widgets/*"],
+      "@Pages/*": ["src/pages/*"]
+    },
   },
   "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.vue"]
 }
