@@ -1,13 +1,9 @@
-import { createMemoryHistory, createRouter } from 'vue-router'
-import App from '@/App.vue'
-import { LoginPage, NotFoundPage } from '@/pages'
+import { createRouter, createWebHashHistory } from 'vue-router'
+import { NotFoundPage } from '@/pages'
+import { beforeEacHook } from './before-each-hook'
+import { loginRootRoute } from './login'
 
 const routes = [
-    {
-        path: '/login',
-        name: 'LoginPage',
-        component: LoginPage
-    },
     {
         path: '/:pathMatch(.*)*',
         name: 'BadRequestPage',
@@ -16,11 +12,19 @@ const routes = [
     {
         path: '/',
         name: 'HomePage',
-        component: App
+        props: {
+            msg: 'Hello World'
+        },
+        component: () => import('@/components/HelloWorld.vue'),
     },
+    loginRootRoute,
 ]
 
-export const router = createRouter({
-    history: createMemoryHistory(),
+const router = createRouter({
+    history: createWebHashHistory(),
     routes,
 })
+
+router.beforeEach(beforeEacHook)
+
+export default router
