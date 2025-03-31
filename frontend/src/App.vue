@@ -1,15 +1,23 @@
-<script setup lang="ts">
-import { RouterView } from 'vue-router';
-</script>
-
 <template>
-  <div>
-    {{ $route.fullPath }}
+  <div class="container" v-if="!isAuthenticated">
+    <RouterView />
   </div>
-  <RouterView />
+  <div v-else>
+    
+  </div>
 </template>
 
-<style scoped>
+<script setup lang="ts">
+import { storeToRefs } from 'pinia'
+import { RouterView } from 'vue-router'
+import { useAuthStore } from '@/app'
+
+const { isAuthenticated } = storeToRefs(useAuthStore())
+</script>
+
+
+<style>
+@import url("./app/styles/style.css");
 .logo {
   height: 6em;
   padding: 1.5em;

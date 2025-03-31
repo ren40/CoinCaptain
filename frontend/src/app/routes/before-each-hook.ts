@@ -1,10 +1,11 @@
 import type { NavigationGuardNext, RouteLocationNormalized } from "vue-router";
 import { useAuthStore } from "../store/auth"
+import { storeToRefs } from 'pinia'
 
 export const beforeEacHook = (to: RouteLocationNormalized, from: RouteLocationNormalized, next: NavigationGuardNext) => {
-    const { isAuthenticated } = useAuthStore()
+    const { isAuthenticated } = storeToRefs(useAuthStore())
 
-    if (isAuthenticated()) {
+    if (isAuthenticated.value) {
         if (to.name === 'LoginPage') {
             next({name: 'HomePage'})
         } else {
