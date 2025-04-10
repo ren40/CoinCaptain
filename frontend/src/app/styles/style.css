@@ -1,5 +1,6 @@
-@import url('./colors-guide.css');
+@import url('./palette.css');
 @import url('./modern-normalize.css');
+@import url('./login-form/login-form.css');
 
 :root {
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
