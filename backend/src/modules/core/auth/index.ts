@@ -20,7 +20,6 @@ const scheme = z.object({
 auth.post('/', zValidator('json', scheme), async (c) => {
     try {
         const { username, password } = await c.req.json();
-        console.log(username, password)
 
         const connection = await db.connect()
         const rowsUsers = await connection`SELECT * FROM users WHERE username = ${username}`.values()

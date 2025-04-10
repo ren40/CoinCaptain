@@ -1,0 +1,13 @@
+:root {
+    --black: oklch(0 0 0)!important;
+    --white: oklch(1 0 0) !important;
+    --primary-light: oklch(0.98 0.0034 247.86) !important;
+    --primary-blue: oklch(0.96 0.0233 231.83) !important;
+    --primary-purple: oklch(0.94 0.0155 257.2) !important;
+    --black-tints-500: #1C1C1C !important;
+    --black-tints-400: #282828 !important;
+    --black-tints-200: #333333 !important;
+    --black-tints-100: #3B3B3B !important;
+    --secondary-purple-500: oklch(0.74 0.1282 275.47) !important;
+    --secondary-purple-400: oklch(0.85 0.0681 283.92) !important;
+}
