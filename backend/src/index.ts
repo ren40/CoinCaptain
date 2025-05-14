@@ -12,20 +12,15 @@ const app = new Hono()
 //   maxAge: 600,
 //   credentials: true,
 // }))
-
+db.connect()
 app.use('api/*', cors())
 
-db.connect()
-
-app.route('api/login/*', Auth)
-app.route('api/user/*', User)
+app.route('api/login', Auth)
+app.route('api/user', User)
 
 app.get('/', (c) => {
   return c.text('Hello Hono!')
 })
-
-
-
 
 // export default app
 export default {

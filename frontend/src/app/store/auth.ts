@@ -6,8 +6,10 @@ import type { AxiosError } from 'axios'
 
 interface IUser {
     username: string,
-    password: string
+    password: string,
+    email ?: string,
 }
+
 export const useAuthStore = defineStore('auth', () => {
     const token = ref<string | null>(null)
     const user = ref<string | null>(null)
@@ -30,11 +32,24 @@ export const useAuthStore = defineStore('auth', () => {
         token.value = null
     }
 
+    const register = (registerDate: IUser) => {
+        return axios.post('/api/user/register', { ...registerDate }).then((response) => {
+            console.log({...registerDate})
+            if (response.status === 200) {
+                return true
+            }
+        }).catch((err: AxiosError) => {
+            console.error(err)
+            throw new Error('Ошибка авторизации: код ошибки: ' + err.code + ' сообщение ошибки ' + err.message)
+        })
+    }
+
     return {
         token,
         user,
         isAuthenticated,
         login,
         logout,
+        register,
     }
 })

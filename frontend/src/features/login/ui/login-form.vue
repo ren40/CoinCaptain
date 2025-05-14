@@ -1,24 +1,28 @@
 <template>
   <form class="wrapper" @submit.prevent="onLogin">
     <input
-      class="auth_form auth__input"
+      class="auth_form form__input"
       placeholder="Логин"
       v-model="username"
     />
     <input
-      class="auth_form auth__input"
+      class="auth_form form__input"
       type="password"
       placeholder="Пароль"
       v-model="password"
     />
-    <a class="auth__form auth__link" href="#">Восстановить пароль/логин</a>
-    <button class="auth_form auth__btn" @click.prevent="onLogin">Войти</button>
+    <div class="auth__form link__wrapper">
+      <!-- <a class="auth__form form__link" href="#">Восстановить пароль</a>
+      | -->
+      <router-link :to="{name: 'RegisterPage'}" class="auth__form form__link" >Регистрация</router-link>  
+    </div>
+    <button class="auth_form form__btn" @click.prevent="onLogin">Войти</button>
   </form>
 </template>
 <script lang="ts" setup>
 import { storeToRefs } from "pinia";
 import { ref } from "vue";
-import { useRouter } from "vue-router";
+import { useRouter, RouterLink } from "vue-router";
 import { useAuthStore } from "@/app/store";
 
 const { login } = useAuthStore();
