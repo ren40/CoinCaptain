@@ -1,0 +1,1 @@
+export { saveLocalStorage, getValueFromLocalStorage } from './localStorageUtils'

@@ -4,9 +4,9 @@
         <form @submit="onSubmit" class="register__form">
             <input class="auth__form form__input" type="text" placeholder="Имя пользователя" required
                 v-model="username" />
-            <input class="form__input" type="email" placeholder="Почта" required v-model="email" />
-            <input class="form__input" type="text" placeholder="Пароль" required v-model="password" />
-            <input class="form__input" type="text" placeholder="Повтори пароль" required v-model="passwordConfirm" />
+            <input class="form__input" type="email" placeholder="Почта" required v-model.trim="email" />
+            <input class="form__input" type="password" placeholder="Пароль" required v-model.trim="password" />
+            <input class="form__input" type="password" placeholder="Повтори пароль" required v-model.trim="passwordConfirm" />
         </form>
         <div class="register_btn">
             <button :disabled="!isValidate" type="submit" @click="onSubmit"

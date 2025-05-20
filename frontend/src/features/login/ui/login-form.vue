@@ -3,18 +3,19 @@
     <input
       class="auth_form form__input"
       placeholder="Логин"
-      v-model="username"
+      v-model.trim="username"
     />
     <input
       class="auth_form form__input"
       type="password"
       placeholder="Пароль"
-      v-model="password"
+      v-model.trim="password"
     />
     <div class="auth__form link__wrapper">
       <!-- <a class="auth__form form__link" href="#">Восстановить пароль</a>
       | -->
-      <router-link :to="{name: 'RegisterPage'}" class="auth__form form__link" >Регистрация</router-link>  
+      У вас нет учетной записи?
+      <router-link :to="{name: 'RegisterPage'}" class="auth__form form__link" >Зарегистрироваться</router-link>  
     </div>
     <button class="auth_form form__btn" @click.prevent="onLogin">Войти</button>
   </form>
