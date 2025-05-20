@@ -15,7 +15,8 @@ export function checkJWT(token: string | null) {
             }
 
             if (exp * 1000 < currentTime) {
-                throw new Error('Token expired')
+                console.log('Token expired')
+                return false
             }
         }
 

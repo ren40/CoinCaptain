@@ -48,6 +48,7 @@ auth.post('/', zValidator('json', scheme), async (c) => {
             path: '/',
             httpOnly: true,
             sameSite: 'lax',
+            secure: process.env.NODE_ENV === 'production'
         })
 
         return c.json({
@@ -81,7 +82,12 @@ auth.get('/refresh', async (c) => {
         setCookie(c, 'auth-token', newToken, {
             path: '/',
             httpOnly: true,
+            sameSite: 'lax',
             secure: process.env.NODE_ENV === 'production'
+        })
+
+          return c.json({
+            newToken,
         })
     } catch (e) {
         console.error('Error during token refresh:', e)

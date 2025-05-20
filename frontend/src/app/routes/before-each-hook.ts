@@ -4,7 +4,6 @@ import { storeToRefs } from 'pinia'
 
 export const beforeEacHook = (to: RouteLocationNormalized, from: RouteLocationNormalized, next: NavigationGuardNext) => {
     const { isAuthenticated } = storeToRefs(useAuthStore())
-
     if (isAuthenticated.value) {
         if (to.name === 'LoginPage') {
             next({name: 'HomePage'})
@@ -12,7 +11,8 @@ export const beforeEacHook = (to: RouteLocationNormalized, from: RouteLocationNo
             next()
         }
     } else {
-        if (to.name === 'LoginPage') {
+        if (to.name === 'LoginPage' || to.name === 'RegisterPage'
+        ) {
             next()
         } else {
             next({name: 'LoginPage'})

@@ -1,5 +1,5 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
-import { NotFoundPage, Layout } from '@/pages'
+import { NotFoundPage, Layout, RegistrePage } from '@/pages'
 import { beforeEacHook } from './before-each-hook'
 import { loginRootRoute } from './login'
 
@@ -15,7 +15,12 @@ const routes = [
         props: {
             msg: 'Hello World'
         },
-        component: Layout,
+        component: () => Layout,
+    },
+    {
+        path: '/register',
+        name: 'RegisterPage',
+        component: () => RegistrePage,
     },
     loginRootRoute,
 ]

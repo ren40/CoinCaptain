@@ -19,4 +19,11 @@ app.get(
 )
 
 
+app.post('/register', async (c) => {
+    return c.json({
+        ok: true,
+        message: 'User registered successfully'
+    })
+})
+
 export default app

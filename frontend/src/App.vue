@@ -1,6 +1,9 @@
 <template>
   <error-boundary class="container">
     <RouterView />
+    <footer class="app_footer">
+      <p>CoinCaptain {{ getCurrentYear }}</p>
+    </footer>
   </error-boundary>
 </template>
 
@@ -9,8 +12,11 @@ import { storeToRefs } from 'pinia'
 import { RouterView } from 'vue-router'
 import { useAuthStore } from '@/app'
 import { ErrorBoundary } from '@/shared'
-
+import { computed } from 'vue'
 const { isAuthenticated } = storeToRefs(useAuthStore())
+
+const getCurrentYear = computed(() => new Date().getFullYear())
+
 </script>
 
 <style>
