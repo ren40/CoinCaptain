@@ -52,6 +52,7 @@ export const useAuthStore = defineStore('auth', () => {
             }
         }).catch((err: AxiosError) => {
             console.error(err)
+            token.value = ''
             throw new Error('Ошибка получение токена: код ошибки: ' + err.code + ' сообщение ошибки ' + err.message)
         })
     }

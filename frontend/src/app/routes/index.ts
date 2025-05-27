@@ -15,6 +15,12 @@ const routes = [
         props: {
             msg: 'Hello World'
         },
+        
+        meta: {
+            breadcrumb: {
+                name: 'Home',
+            }
+        },
         component: () => Layout,
     },
     {

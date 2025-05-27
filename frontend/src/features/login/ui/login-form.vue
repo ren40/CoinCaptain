@@ -1,5 +1,5 @@
 <template>
-  <form class="wrapper" @submit.prevent="onLogin">
+  <form class="auth_form--wrapper" @submit.prevent="onLogin">
     <input
       class="auth_form form__input"
       placeholder="Логин"

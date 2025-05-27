@@ -23,6 +23,13 @@
   padding: 108px 145px;
 }
 
+.auth_form--wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
 .login__header {
   font-weight: 600;
   font-size: x-large;

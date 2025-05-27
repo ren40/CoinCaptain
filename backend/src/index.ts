@@ -1,6 +1,6 @@
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
-import { User, Auth } from './modules/core'
+import { User, Auth, Transations } from './modules/core'
 import db from './modules/infrastructure/db'
 
 const app = new Hono()
@@ -17,6 +17,7 @@ app.use('api/*', cors())
 
 app.route('api/login', Auth)
 app.route('api/user', User)
+app.route('api/transations', Transations)
 
 app.get('/', (c) => {
   return c.text('Hello Hono!')

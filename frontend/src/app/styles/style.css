@@ -1,8 +1,14 @@
 @import url("./palette.css");
 @import url("./modern-normalize.css");
+/* UI KIt */
+@import url("./ui/form.css");
+
+/* Login form */
 @import url("./login-form/login-form.css");
 @import url("./login-form/register-form.css");
-@import url("./ui/form.css");
+
+/* Layout page */
+@import url("./layout/header-nav.css");
 
 :root {
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
@@ -85,15 +91,6 @@ img {
   &>.error-boundary__list--item {
     display: flex;
   }
-}
-
-
-
-.wrapper {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-  margin-top: 2rem;
 }
 
 @media (max-width: 768px) {

@@ -75,7 +75,7 @@ auth.get('/refresh', async (c) => {
     try {
         const decodedToken = decode(cookieToken)
         const newToken = await sign(
-            { userId: decodedToken.payload.nbf },
+            { userId: decodedToken.payload.username },
             process.env.SECRET_KEY || '',
         )
 
@@ -86,7 +86,7 @@ auth.get('/refresh', async (c) => {
             secure: process.env.NODE_ENV === 'production'
         })
 
-          return c.json({
+        return c.json({
             newToken,
         })
     } catch (e) {
