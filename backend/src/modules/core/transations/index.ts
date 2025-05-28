@@ -1,7 +1,7 @@
 import { Hono } from 'hono'
 import { logger } from 'hono/logger'
-import { getCookie } from 'hono/cookie'
-import { sign, decode } from 'hono/jwt'
+import { checkToken } from '../../utils'
+import { bearerAuth } from 'hono/bearer-auth'
 
 import db from '../../infrastructure/db'
 
@@ -20,20 +20,29 @@ const scheme = z.object({
 
 transations.post()
 
-transations.get('/', async (c) => {
-    const cookieToken = await getCookie(c, 'token')
+transations.get('/', bearerAuth({
+    verifyToken: async (token, c) => {
+        return await checkToken(c, token)
+    },
+}), async (c) => {
+    const decodePayload = await c.get('jwtPayload')
 
-    if (!cookieToken) {
+    if (!decodePayload) {
         throw new HTTPException(401, { message: 'No  token provided' })
     }
-    
-    try {
-        const decodedToken = decode(cookieToken)
 
-        const userName = decodedToken.payload.username
+    try {
+        const userName = decodePayload.username
         const connection = await db.connect()
 
-        const rowsTransations = await connection`SELECT * FROM transations WHERE username = ${userName}`.values()
+        const rowsUsers = await connection`SELECT * FROM users WHERE username = ${userName}`.values()
+        if (rowsUsers.length === 0) {
+            throw new HTTPException(404, { message: 'User not found' })
+        }
+
+        const userID = rowsUsers[0][0]
+
+        const rowsTransations = await connection`SELECT * FROM transactions WHERE user_id = ${userID}`.values()
         if (rowsTransations.length === 0) {
             return c.json({
                 transations: []

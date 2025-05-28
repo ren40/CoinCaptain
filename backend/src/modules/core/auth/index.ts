@@ -7,6 +7,8 @@ import { z } from 'zod'
 import { setCookie, getCookie } from 'hono/cookie'
 
 import db from '../../infrastructure/db'
+import { bearerAuth } from 'hono/bearer-auth'
+import { checkToken } from '../../utils'
 
 const auth = new Hono()
 
@@ -44,12 +46,6 @@ auth.post('/', zValidator('json', scheme), async (c) => {
 
         const token = await sign(payload, Bun.env.SECRET_KEY || '')
 
-        setCookie(c, 'token', token, {
-            path: '/',
-            httpOnly: true,
-            sameSite: 'lax',
-            secure: process.env.NODE_ENV === 'production'
-        })
 
         return c.json({
             payload,
@@ -65,17 +61,21 @@ auth.post('/', zValidator('json', scheme), async (c) => {
     }
 })
 
-auth.get('/refresh', async (c) => {
-    const cookieToken = await getCookie(c, 'token')
+auth.get('/refresh', bearerAuth({
+    verifyToken: async (token, c) => {
+        return await checkToken(c, token)
+    },
+}), async (c) => {
+    const decodePayload = await c.get('jwtPayload')
 
-    if (!cookieToken) {
+ if (!decodePayload) {
         throw new HTTPException(401, { message: 'No  token provided' })
     }
 
     try {
-        const decodedToken = decode(cookieToken)
+        const decodedToken = decodePayload
         const newToken = await sign(
-            { userId: decodedToken.payload.username },
+            { userId: decodedToken.username },
             process.env.SECRET_KEY || '',
         )
 

@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { computed, onMounted, ref } from 'vue'
-import { axios } from '@/shared'
+import { useAxios } from '@/shared'
 import { checkJWT, getValueFromLocalStorage, saveLocalStorage } from '@/shared'
 import type { AxiosError } from 'axios'
 
@@ -11,13 +11,14 @@ interface IUser {
 }
 
 export const useAuthStore = defineStore('auth', () => {
+    const { axiosInstance } = useAxios()
     const token = ref<string | null>(null)
     const user = ref<string | null>(null)
 
     const isAuthenticated = computed(() => checkJWT(token.value))
 
     const login = (loginDate: IUser) => {
-        return axios.post('/api/login', { ...loginDate }).then((response) => {
+        return axiosInstance.post('/api/login', { ...loginDate }).then((response: { status: number; data: { token: string | null; payload: { username: string | null } } }) => {
             if (response.status === 200) {
                 token.value = response.data.token
                 user.value = response.data.payload.username
@@ -34,7 +35,7 @@ export const useAuthStore = defineStore('auth', () => {
     }
 
     const register = (registerDate: IUser) => {
-        return axios.post('/api/user/register', { ...registerDate }).then((response) => {
+        return axiosInstance.post('/api/user/register', { ...registerDate }).then((response: { status: number }) => {
             console.log({ ...registerDate })
             if (response.status === 200) {
                 return true
@@ -46,7 +47,7 @@ export const useAuthStore = defineStore('auth', () => {
     }
 
     const reFreshToken = () => {
-        return axios.get<string>('/api/login/refresh').then((result) => {
+        return axiosInstance.get<string>('/api/login/refresh').then((result: { status: number; data: string | null }) => {
             if(result.status === 200) {
                 token.value = result.data
             }
@@ -78,5 +79,6 @@ export const useAuthStore = defineStore('auth', () => {
         login,
         logout,
         register,
+        reFreshToken,
     }
 })
