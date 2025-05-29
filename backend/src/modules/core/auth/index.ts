@@ -2,9 +2,8 @@ import { Hono } from 'hono'
 import { logger } from 'hono/logger'
 import { HTTPException } from 'hono/http-exception'
 import { zValidator } from '@hono/zod-validator'
-import { sign, decode } from 'hono/jwt'
+import { sign } from 'hono/jwt'
 import { z } from 'zod'
-import { setCookie, getCookie } from 'hono/cookie'
 
 import db from '../../infrastructure/db'
 import { bearerAuth } from 'hono/bearer-auth'
@@ -46,7 +45,6 @@ auth.post('/', zValidator('json', scheme), async (c) => {
 
         const token = await sign(payload, Bun.env.SECRET_KEY || '')
 
-
         return c.json({
             payload,
             token,
@@ -67,25 +65,24 @@ auth.get('/refresh', bearerAuth({
     },
 }), async (c) => {
     const decodePayload = await c.get('jwtPayload')
+    console.log('Decoded payload:', decodePayload)
 
- if (!decodePayload) {
+    if (!decodePayload) {
         throw new HTTPException(401, { message: 'No  token provided' })
     }
 
     try {
-        const decodedToken = decodePayload
+        const payload = {
+            username: decodePayload.username,
+            exp: Math.floor(Date.now() / 1000) + 60 * 60, // 1 hour expiration
+            iat: Math.floor(Date.now() / 1000),
+        }
+        console.log('Refreshing token for user:', payload)
         const newToken = await sign(
-            { userId: decodedToken.username },
+            payload,
             process.env.SECRET_KEY || '',
         )
-
-        setCookie(c, 'auth-token', newToken, {
-            path: '/',
-            httpOnly: true,
-            sameSite: 'lax',
-            secure: process.env.NODE_ENV === 'production'
-        })
-
+        console.log('New token generated:', newToken)
         return c.json({
             newToken,
         })

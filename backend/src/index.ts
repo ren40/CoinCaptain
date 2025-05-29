@@ -3,7 +3,7 @@ import { cors } from 'hono/cors'
 import { User, Auth, Transations } from './modules/core'
 import db from './modules/infrastructure/db'
 
-const app = new Hono()
+const app = new Hono().basePath('/api')
 // app.use('api/*', cors({
 //   origin: 'http://localhost:5173', // Allow requests from your frontend
 //   allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
@@ -13,11 +13,11 @@ const app = new Hono()
 //   credentials: true,
 // }))
 db.connect()
-app.use('api/*', cors())
+app.use('*', cors())
 
-app.route('api/login', Auth)
-app.route('api/user', User)
-app.route('api/transations', Transations)
+app.route('/login', Auth)
+app.route('/user', User)
+app.route('/transations', Transations)
 
 app.get('/', (c) => {
   return c.text('Hello Hono!')

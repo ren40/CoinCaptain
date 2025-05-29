@@ -19,18 +19,6 @@
 
 <script lang="ts" setup>
 import { HeaderNav } from '@/widgets'
-import { useAxios } from '@/shared'
-import { onMounted } from 'vue';
-
-const { axiosInstance } = useAxios()
-
-onMounted(() => {
-    axiosInstance.get('/api/transations').then(response => {
-        console.log('Data fetched:', response.data);
-    }).catch(error => {
-        console.error('Error fetching data:', error);
-    });
-})
 </script>
 
 <style lang="css" scoped>

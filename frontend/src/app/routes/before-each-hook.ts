@@ -6,7 +6,7 @@ export const beforeEacHook = (to: RouteLocationNormalized, from: RouteLocationNo
     const { isAuthenticated } = storeToRefs(useAuthStore())
     if (isAuthenticated.value) {
         if (to.name === 'LoginPage') {
-            next({name: 'HomePage'})
+            next({path: '/dashboard'})
         } else {
             next()
         }

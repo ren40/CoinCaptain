@@ -32,6 +32,7 @@ export const useAuthStore = defineStore('auth', () => {
 
     const logout = () => {
         token.value = null
+        localStorage.removeItem('user-data')
     }
 
     const register = (registerDate: IUser) => {
@@ -48,12 +49,14 @@ export const useAuthStore = defineStore('auth', () => {
 
     const reFreshToken = () => {
         return axiosInstance.get<string>('/api/login/refresh').then((result: { status: number; data: string | null }) => {
-            if(result.status === 200) {
+            console.log('Refreshing token:', result.data)
+            if (result.status === 200) {
                 token.value = result.data
             }
         }).catch((err: AxiosError) => {
             console.error(err)
             token.value = ''
+            localStorage.removeItem('user-data')
             throw new Error('Ошибка получение токена: код ошибки: ' + err.code + ' сообщение ошибки ' + err.message)
         })
     }
@@ -61,6 +64,7 @@ export const useAuthStore = defineStore('auth', () => {
     onMounted(() => {
         getValueFromLocalStorage('user-data').then((result) => {
             if (result) {
+                console.log('Token from localStorage:', result, !checkJWT(result))
                 if (!checkJWT(result)) {
                     reFreshToken()
                 } else {

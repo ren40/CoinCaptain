@@ -40,7 +40,7 @@ const onLogin = async () => {
   
   if (isAuthenticated.value) {
     router.push({
-      name: "HomePage",
+      name: "DashboardPage",
     });
   }
 };

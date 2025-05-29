@@ -8,3 +8,5 @@ export interface ITransation {
     balance: number,
     createdAt: string,
 }
+
+export type ITransationScheme = Omit<ITransation, 'id' | 'createdAt'>

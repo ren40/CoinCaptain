@@ -1,3 +1,3 @@
 <template>
-    <div>Hello world</div>
+    <div>404 Not Found</div>
 </template>

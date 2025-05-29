@@ -12,14 +12,14 @@
 
             <li>
                 <!-- TODO History Aside Rigth -->
+                <v-logout-btn />
             </li>
         </ul>
     </nav>
 </template>
 
 <script lang="ts" setup>
-import { BreadCrumbs } from '@/features'
-
+import { BreadCrumbs, VLogoutBtn } from '@/features'
 
 
 </script>

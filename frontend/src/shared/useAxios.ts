@@ -33,13 +33,15 @@ export const useAxios = () => {
 
     axiosInstance.interceptors.response.use((response) => response, async error => {
         const originalRequest = error.config
+          const { token } = storeToRefs(useAuthStore())
 
-        if (error.response.status === 401 && !originalRequest._retry) {
+        if (error.response.status === 401 && !originalRequest._retry && token.value) {
             originalRequest._retry = true;
 
             try {
-                const { token } = storeToRefs(useAuthStore())
                 await useAuthStore().reFreshToken();
+              
+                console.log('Refreshing token:', token.value);
 
                 if (token.value) {
                     localStorage.setItem('token', token.value); 
