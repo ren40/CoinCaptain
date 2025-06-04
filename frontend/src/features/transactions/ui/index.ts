@@ -1,0 +1,1 @@
+export { default as TransactionsCreateForm } from './transactions-create-form.vue'

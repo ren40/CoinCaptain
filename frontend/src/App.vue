@@ -1,5 +1,5 @@
 <template>
-  <error-boundary class="container">
+  <error-boundary :class="!isAuthenticated ? 'container': 'app_container'">
     <RouterView />
     <footer class="app_footer">
       <p>CoinCaptain {{ getCurrentYear }}</p>
@@ -21,6 +21,10 @@ const getCurrentYear = computed(() => new Date().getFullYear())
 
 <style>
 @import url("./app/styles/style.css");
+
+.app_container {
+  min-height: 100vh;
+}
 
 .logo {
   height: 6em;

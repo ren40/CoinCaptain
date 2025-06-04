@@ -8,7 +8,7 @@
 
             </aside>
             <div class="layout__content">
-
+                <transactions-list />
             </div>
         </main>
         <footer class="layout__footer">
@@ -19,6 +19,7 @@
 
 <script lang="ts" setup>
 import { HeaderNav } from '@/widgets'
+import { TransactionsList } from '@/widgets'
 </script>
 
 <style lang="css" scoped>

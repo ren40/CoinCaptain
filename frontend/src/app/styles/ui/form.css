@@ -12,7 +12,7 @@
 
 .form__input {
   height: 2.5rem;
-  background-color: var(--black-tints-400);
+  background-color: var(--black-tints-200);
   border: 1px solid;
   border-color: #474747 !important;
   color: var(--white) !important;
@@ -30,7 +30,7 @@
     color: var(--white);
   }
   &:active {
-    background-color: var(--black-tints-400);
+    background-color: var(--black-tints-200);
     border-color: var(--secondary-purple-500);
     color: var(--white);
     box-shadow: 0 0 0 3px #3040a4;
@@ -48,6 +48,37 @@
   &:-moz-placeholder {
     color: var(--white);
   }
+}
+
+.form__input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  background-color: var(--black-tints-400);
+  margin: 0;
+  width: 1rem;
+  height: 1rem;
+  border: 0.15em solid var(--white);
+  border-radius: .5rem;
+}
+
+.form__input[type="checkbox"]:checked {
+  background-color: var(--secondary-purple-500);
+  border-color: var(--secondary-purple-500);
+}
+
+.transactions-create-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  background-color: var(--black-tints-400);
+  border-radius: 0.5rem;
+}
+
+.form__group {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  grid-template-rows: 1fr;
+  align-items: center;
 }
 
 .form__btn {
@@ -83,4 +114,29 @@
     color: var(--white);
     box-shadow: none;
   }
+}
+
+.transactions-create-form--btn {
+  width: 100%;
+}
+
+.transactions-create-form--btn__cancel {
+  background-color: var(--black-tints-190);
+  color: var(--white);
+  &:hover {
+    background-color: #474747;
+    box-shadow: 0 0 0 3px #474747;
+    color: var(--white);
+  }
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px #b0bafe;
+    color: var(--white);
+  }
+}
+
+.transactions-create-form__footer {
+  display: flex;
+  width: 100%;
+  gap: 1rem;
 }

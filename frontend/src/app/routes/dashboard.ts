@@ -1,5 +1,5 @@
 import type { RouteRecordRaw } from 'vue-router'
-import { useTransactions } from '@/app/store'
+import { useTransactions } from '@/entities/transactions'
 
 export const dashboardRoute: RouteRecordRaw = {
     path: '/dashboard',

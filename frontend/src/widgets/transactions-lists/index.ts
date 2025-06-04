@@ -1,0 +1,1 @@
+export { default as TransactionsList } from './transactions-list.vue'
