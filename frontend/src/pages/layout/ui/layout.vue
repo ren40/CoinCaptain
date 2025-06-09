@@ -25,26 +25,29 @@ import { TransactionsList } from '@/widgets'
 <style lang="css" scoped>
 .wrapper {
     display: grid;
-    flex-grow: 1;
-    grid-template-columns: repeat(9, 1fr);
-    grid-auto-rows: minmax(100px, auto);
+    height: 100vh;
+    grid-template-columns: 200px 1fr;
+    grid-template-rows: auto 1fr auto;
     grid-template-areas:
-        "hd hd hd hd hd hd hd hd hd"
-        "sd sd sd main main main main main main"
-        "sd sd sd ft ft ft ft ft ft";
+        "hd hd hd"
+        "sd main main"
+        "ft ft ft";
 }
 
 .layout__header {
+    height: 4.4rem;
     grid-area: hd;
     background-color: #8ca0ff;
 }
 
 .layout__nav {
     grid-area: sd;
-    background-color: #8ca1;
+    background-color: rgba(17, 233, 125, 0.067);
 }
 
 .layout__main {
+    max-width: 60rem;
+    padding: 1.75rem;
     grid-area: main;
     background-color: #afb4d0;
 }

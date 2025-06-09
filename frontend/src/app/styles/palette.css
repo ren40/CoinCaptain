@@ -11,4 +11,5 @@
     --black-tints-100: #3B3B3B !important;
     --secondary-purple-500: oklch(0.74 0.1282 275.47) !important;
     --secondary-purple-400: oklch(0.85 0.0681 283.92) !important;
+    --danger-red: oklch(0.6666 0.2204 25.5) !important;
 }

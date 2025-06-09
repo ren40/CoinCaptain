@@ -6,7 +6,7 @@
         <td>{{ transation.date }}</td>
         <td>{{ transation.categoryId }}</td>
         <td>
-            <slot name="action" />
+            <slot name="action" :id="transation.id" />
         </td>
     </tr>
 </template>
@@ -16,5 +16,4 @@ import type { ITransactions } from '@/entities/transactions';
 defineProps<{
     transation: ITransactions
 }>()
-
 </script>

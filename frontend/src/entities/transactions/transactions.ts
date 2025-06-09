@@ -16,7 +16,12 @@ export const useTransactions = defineStore('transactions', () => {
     const fecthAllTransactions = async () => {
         try {
             isLoading.value = true
-            axiosInstance.get('/api/transations').then((response) => {
+            axiosInstance.get('/api/transations', {
+                params: {
+                    currentPage: 0,
+                    sizePage: 10,
+                }
+            }).then((response) => {
                 if (response.status === 200) {
                     console.log('Fetched transactions:', response.data)
                     transactionsListsMap.value.clear()
@@ -65,11 +70,11 @@ export const useTransactions = defineStore('transactions', () => {
         }
     }
 
-    const editItem = async (key: string | string[],  field: unknown) => {
-        
+    const editItem = async (key: string | string[], field: unknown) => {
+
     }
 
-    const deleteItem = async (id: string) => {
+    const deleteItem = async (id: number) => {
         try {
             isLoading.value = true
             axiosInstance.delete(`/api/transations/${id}`).then((response) => {

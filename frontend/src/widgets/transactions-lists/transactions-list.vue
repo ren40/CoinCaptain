@@ -11,25 +11,37 @@
             </tr>
         </thead>
         <tbody>
-            <template v-for="(item) in getTransactionsFromArray" :key="item.id"><transactions-list-item
-                    :transation="item"></transactions-list-item></template>
+            <div v-if="isLoading" class="loading">
+                <span>Загрузка...</span>
+            </div>
+            <div v-else-if="getTransactionsFromArray.length === 0" class="empty">
+                <span>Список пуст</span>
+            </div>
+
+            <template v-else v-for="(item) in getTransactionsFromArray" :key="item.id">
+                <transactions-list-item :transation="item">
+                    <template #action="{ id }">
+                        <transactions-delete-btn :id="id" />
+                    </template>
+                </transactions-list-item>
+            </template>
 
         </tbody>
     </table>
     <div>
-        <button @click="openDialog">Создать</button>
-        <v-dialog :isOpen="isOpenDialog" @close="isOpenDialog = false">
+        <button class="form__btn " @click="openDialog">Создать</button>
+        <v-dialog :isOpen="isOpenDialog" @close="isOpenDialog = false" :is-loading="isLoading">
             <template #header>
                 <h2>Создание новой транзакции</h2>
             </template>
             <template #main>
-                <TransactionsCreateForm :newTransaction="newTransaction" />
+                <TransactionsCreateForm :newTransaction="newTransaction" @update="onUpdate" />
             </template>
             <template #footer>
-                <div class="transactions-create-form__footer">
-                    <button class="form__btn transactions-create-form--btn transactions-create-form--btn__cancel"
+                <div class="dialog-form__footer">
+                    <button class="form__btn dialog-form--btn dialog-form--btn__cancel"
                         @click="isOpenDialog = false">Закрыть</button>
-                    <button class="form__btn transactions-create-form--btn " :disabled="!newTransaction"
+                    <button class="form__btn dialog-form--btn " :disabled="!newTransaction"
                         @click="onCreateAndExit">Создать</button>
                 </div>
             </template>
@@ -43,18 +55,18 @@ import { useTransactions, type ITransactionCreate } from '@/entities/transaction
 import { onMounted, ref } from 'vue'
 import { TransactionsListItem } from '@/entities'
 import { VDialog } from '@/shared'
-import { TransactionsCreateForm } from '@/features'
+import { TransactionsCreateForm, TransactionsDeleteBtn } from '@/features'
 
 const store = useTransactions()
-const { getTransactionsFromArray } = storeToRefs(store)
+const { getTransactionsFromArray, isLoading } = storeToRefs(store)
 const { fecthAllTransactions, createItem } = store
 
 const newTransaction = ref<ITransactionCreate>()
 const isOpenDialog = ref(false)
 
-onMounted(() => {
+onMounted(async () => {
     if (getTransactionsFromArray.value.length === 0) {
-        fecthAllTransactions()
+        await fecthAllTransactions()
     }
 })
 
@@ -62,10 +74,25 @@ const openDialog = () => {
     isOpenDialog.value = true
 }
 
-const onCreateAndExit = () => {
-    if (newTransaction.value) {
-        createItem(newTransaction.value)
-        isOpenDialog.value = false
+const onUpdate = (item: ITransactionCreate) => {
+    newTransaction.value = { ...item }
+}
+
+const onCreateAndExit = async () => {
+    try {
+        if (newTransaction.value) {
+            await createItem(newTransaction.value)
+            isOpenDialog.value = false
+            newTransaction.value = {
+                description: '',
+                amount: 0,
+                isIncome: false,
+                date: new Date().toISOString().split('T')[0],
+                categoryId: 0
+            }
+        }
+    } catch (error) {
+        console.error('Error creating transaction:', error)
     }
 }
 </script>

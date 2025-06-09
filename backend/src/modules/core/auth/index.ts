@@ -5,9 +5,10 @@ import { zValidator } from '@hono/zod-validator'
 import { sign } from 'hono/jwt'
 import { z } from 'zod'
 
-import db from '../../infrastructure/db'
+import dbClientInstance from '../../infrastructure/db'
 import { bearerAuth } from 'hono/bearer-auth'
-import { checkToken } from '../../utils'
+import { checkToken, convertArrayToObject } from '../../utils'
+import { IUser } from '../../../types'
 
 const auth = new Hono()
 
@@ -22,16 +23,16 @@ auth.post('/', zValidator('json', scheme), async (c) => {
     try {
         const { username, password } = await c.req.json();
 
-        const connection = await db.connect()
-        const rowsUsers = await connection`SELECT * FROM users WHERE username = ${username}`.values()
+        const dbClient = await dbClientInstance()
+        const rowsUsers = await dbClient.request<Array<IUser>>(`SELECT * FROM users WHERE username='${username}';`)
 
         if (rowsUsers.length === 0) {
             throw new HTTPException(404, { message: 'User not found' })
         }
 
-        const user = rowsUsers[0]
+        const user = convertArrayToObject<IUser>(Object.values(rowsUsers[0]), ['id', 'username', 'email', 'password', 'role', 'created_at', 'updated_at'])
 
-        const isMatch = await Bun.password.verify(password, user[3], 'bcrypt')
+        const isMatch = await Bun.password.verify(password, String(user.password), 'bcrypt')
 
         if (!isMatch) {
             throw new HTTPException(401, { message: 'Invalid credenttials' })

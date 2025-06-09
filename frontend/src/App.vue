@@ -20,8 +20,6 @@ const getCurrentYear = computed(() => new Date().getFullYear())
 </script>
 
 <style>
-@import url("./app/styles/style.css");
-
 .app_container {
   min-height: 100vh;
 }

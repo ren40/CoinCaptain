@@ -82,12 +82,20 @@
 }
 
 .form__btn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: .75rem 1rem;
+
   border: none;
-  height: 2.7rem;
+  height: 2.25rem;
   background-color: var(--secondary-purple-500);
   color: var(--black-tints-500);
   border-radius: 0.5rem;
   cursor: pointer;
+  line-height: 0;
+  font-weight: 400;
+
   &:hover {
     background-color: #838bbd;
     box-shadow: 0 0 0 3px #838bbd;
@@ -116,16 +124,12 @@
   }
 }
 
-.transactions-create-form--btn {
-  width: 100%;
-}
-
-.transactions-create-form--btn__cancel {
-  background-color: var(--black-tints-190);
+.form__btn--danger {
+  background-color: var(--danger-red);
   color: var(--white);
   &:hover {
-    background-color: #474747;
-    box-shadow: 0 0 0 3px #474747;
+    background-color: #b02c2c;
+    box-shadow: 0 0 0 3px #b02c2c;
     color: var(--white);
   }
   &:focus {
@@ -133,10 +137,4 @@
     box-shadow: 0 0 0 3px #b0bafe;
     color: var(--white);
   }
-}
-
-.transactions-create-form__footer {
-  display: flex;
-  width: 100%;
-  gap: 1rem;
 }

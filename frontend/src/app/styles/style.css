@@ -2,6 +2,7 @@
 @import url("./modern-normalize.css");
 /* UI KIt */
 @import url("./ui/form.css");
+@import url("./ui/dialog.css");
 
 /* Login form */
 @import url("./login-form/login-form.css");
@@ -80,6 +81,7 @@ img {
   height: 4rem;
   display: flex;
   justify-content: center;
+  align-items: center;
   flex-shrink: 0;
   padding: 0.5rem;
   color: #6c6c6c;
