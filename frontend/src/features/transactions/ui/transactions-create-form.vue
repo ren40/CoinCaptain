@@ -19,7 +19,7 @@
             </div>
             <div class="form__group">
                 <label for="categoryId">Категория:</label>
-                <select class="form__input" v-model="newItem.categoryId" id="categoryId" name="categoryId">
+                <select class="form__select" v-model="newItem.categoryId" id="categoryId" name="categoryId">
                     <option value="">--Пожалуйста выберите категорию--</option>
                     <!-- Здесь будут опции категорий -->
                 </select>

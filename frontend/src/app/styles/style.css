@@ -3,7 +3,7 @@
 /* UI KIt */
 @import url("./ui/form.css");
 @import url("./ui/dialog.css");
-
+@import url("./ui/table.css");
 /* Login form */
 @import url("./login-form/login-form.css");
 @import url("./login-form/register-form.css");

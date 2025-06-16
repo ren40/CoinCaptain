@@ -3,10 +3,17 @@
         <header class="layout__header">
             <header-nav />
         </header>
+        <aside class="layout__nav">
+            <nav>
+                <ul>
+                    <li><a href="/">Dashboard</a></li>
+                    <li><a href="/transactions">Transactions</a></li>
+                    <li><a href="/reports">Reports</a></li>
+                    <li><a>Настройки</a></li>
+                </ul>
+            </nav>
+        </aside>
         <main class="layout__main">
-            <aside class="layout__nav">
-
-            </aside>
             <div class="layout__content">
                 <transactions-list />
             </div>
@@ -25,7 +32,7 @@ import { TransactionsList } from '@/widgets'
 <style lang="css" scoped>
 .wrapper {
     display: grid;
-    height: 100vh;
+    height: calc(100vh - 4rem);
     grid-template-columns: 200px 1fr;
     grid-template-rows: auto 1fr auto;
     grid-template-areas:
@@ -46,10 +53,17 @@ import { TransactionsList } from '@/widgets'
 }
 
 .layout__main {
-    max-width: 60rem;
+    overflow: hidden;
+    overflow-y: auto;
+    /* max-width: 60rem; */
     padding: 1.75rem;
     grid-area: main;
-    background-color: #afb4d0;
+}
+
+.layout__content {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
 }
 
 .layout__footer {

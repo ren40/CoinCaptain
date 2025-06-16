@@ -1,5 +1,5 @@
 <template>
-    <button @click="onLogout">Выход</button>
+    <button class="form__btn form__btn--danger " @click="onLogout">Выход</button>
 </template>
 
 <script lang="ts" setup>

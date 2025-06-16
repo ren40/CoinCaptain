@@ -1,5 +1,5 @@
 <template>
-    <tr>
+    <tr class="simple__table--row">
         <td>{{ transation.description }}</td>
         <td>{{ transation.amount }}</td>
         <td>{{ transation.isIncome }}</td>

@@ -8,6 +8,9 @@ export const useTransactions = defineStore('transactions', () => {
     const transactionsListsMap = ref(new Map<number, ITransactions>())
     const { axiosInstance } = useAxios()
     const isLoading = ref(false)
+    const pageCount = ref(0)
+    const currentPage = ref(0)
+    const sizeItemsView = ref(5)
 
     const getTransactionsFromArray = computed(() => {
         return Array.from(transactionsListsMap.value.values())
@@ -18,14 +21,17 @@ export const useTransactions = defineStore('transactions', () => {
             isLoading.value = true
             axiosInstance.get('/api/transations', {
                 params: {
-                    currentPage: 0,
-                    sizePage: 10,
+                    currentPage: currentPage.value || 0,
+                    sizeItemsView: sizeItemsView.value || 5,
                 }
             }).then((response) => {
                 if (response.status === 200) {
                     console.log('Fetched transactions:', response.data)
                     transactionsListsMap.value.clear()
                     const transactions = response.data.transations as ITransactions[]
+                    pageCount.value = response.data.pageCount || 0
+                    currentPage.value = response.data.currentPage || 0
+                    sizeItemsView.value = response.data.sizeItemsView || 5
                     transactions.forEach((transaction) => {
                         transactionsListsMap.value.set(transaction.id, transaction)
                     })
@@ -104,6 +110,9 @@ export const useTransactions = defineStore('transactions', () => {
         isLoading,
         transactionsListsMap,
         getTransactionsFromArray,
+        pageCount,
+        currentPage,
+        sizeItemsView,
         fecthAllTransactions,
         createItem,
         editItem,

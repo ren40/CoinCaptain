@@ -14,12 +14,12 @@ class DBClient implements IDBClient {
     conncetion?: SQL
     constructor() {
         this.db = new SQL({
-            hostname: 'localhost',
-            port: 5432,
+            hostname: process.env.HOST || 'localhost',
+            port: Number.parseInt(process.env.PORT || '5432'),
 
-            database: 'coin_captain',
-            username: 'adminCaptain',
-            password: 'Cejhjcnm1!',
+            database: process.env.DATABASE || 'postgres',
+            username: process.env.USER || 'postgres',
+            password: process.env.PASSWORD || 'postgres',
 
             max: 20,
             idle_timeout: 30,
