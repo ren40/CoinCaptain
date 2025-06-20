@@ -17,7 +17,7 @@ export const ITransationKeys = ['id', 'date', 'description', 'amount', 'category
 export interface ICategory {
     id: number,
     name: string,
-    userId: number,
+    userId?: number,
 }
 
 export type ICategoryScheme = Omit<ICategory, 'id'>

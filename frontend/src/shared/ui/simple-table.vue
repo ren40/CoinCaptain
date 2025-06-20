@@ -26,44 +26,41 @@
                 <slot :name="'item'" :items="item" :index="indx" />
             </template>
         </tbody>
-        <tfoot>
-            <tr class="footer__container">
-                <slot name="footer" :items="data" />
-                <div class="pagination__container">
-
-                    <select class="form__select pagination__select"
-                        @input="(e) => emits('selectItemsLength', Number((e.target as HTMLSelectElement).value || ''))">
-                        <option value="5">5</option>
-                        <option value="10">10</option>
-                        <option value="20">20</option>
-                        <option value="50">50</option>
-                    </select>
-                    <!-- TODO надо сделать по красивее, например сделать ограничение по кол-ву кнопок, исправить кнопок -->
-                    <div class="pagination">
-                        <button :disabled="pageNumber - 1 < 0" @click="() => emits('pagination', -1)">
-                            Назад
-                        </button>
-                        <template v-for="page in (pageCount)" :key="page">
-                            <button @click="() => emits('selectPage', page - 1)">
-                                {{ page - 1 }}
-                            </button>
-                        </template>
-                        <button :disabled="pageNumber >= (pageCount - 1)" @click="() => emits('pagination', 1)">
-                            Дальше
-                        </button>
-                    </div>
-                </div>
-            </tr>
-        </tfoot>
     </table>
+    <div class="simple__table--footer__container">
+        <slot name="footer" :items="data" />
+        <div class="pagination__container">
+            <select class="form__select pagination__select"
+                @input="selectItemsLength">
+                <option value="5">5</option>
+                <option value="10">10</option>
+                <option value="20">20</option>
+                <option value="50">50</option>
+            </select>
+            <!-- TODO надо сделать по красивее, например сделать ограничение по кол-ву кнопок, исправить кнопок -->
+            <div class="pagination">
+                <button class="form__btn" :disabled="currentPage - 1 < 0" @click="() => emits('pagination', -1)">
+                    Назад
+                </button>
+                <template v-for="page in (pageCount)" :key="page">
+                    <button class="form__btn " :class="isActiveBtn(page - 1)"
+                        @click="() => emits('selectPage', page - 1)">
+                        {{ page - 1 }}
+                    </button>
+                </template>
+                <button class="form__btn" :disabled="(props.currentPage + 1) >= (props.pageCount)" @click="() => emits('pagination', 1)">
+                    Дальше
+                </button>
+            </div>
+        </div>
+    </div>
 </template>
 <script lang="ts" setup generic="T">
-import { ref } from 'vue'
-
 const props = defineProps<{
     headers: string[]
     data: T[]
     pageCount: number
+    currentPage: number
     isLoading: boolean
 }>()
 
@@ -74,17 +71,26 @@ const emits = defineEmits<{
     sortByDirection: [direction: 'asc' | 'desc']
 }>()
 
-const pageNumber = ref(0)
+const selectItemsLength = (e: Event) => {
+    emits('selectItemsLength', Number((e.target as HTMLSelectElement).value || ''))
+    emits('selectPage', 0)
+}
+
+const isActiveBtn = (page: number) => {
+    console.log(props.pageCount, props.currentPage, (props.currentPage + 1) >= (props.pageCount))
+    return page === props.currentPage ? 'form__btn--active' : ''
+}
 
 </script>
 <style scoped>
 .pagination__container {
     grid-column: 8 / 9;
     display: flex;
+    gap: 1rem;
     width: 100%;
-    justify-content: end;
+    align-items: center;
+    justify-content: center;
 }
-
 .pagination {
     display: flex;
     align-items: center;

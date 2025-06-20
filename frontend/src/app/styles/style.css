@@ -4,6 +4,10 @@
 @import url("./ui/form.css");
 @import url("./ui/dialog.css");
 @import url("./ui/table.css");
+
+/* Components */
+@import url("./component/index.css");
+
 /* Login form */
 @import url("./login-form/login-form.css");
 @import url("./login-form/register-form.css");

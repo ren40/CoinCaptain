@@ -61,7 +61,7 @@
   padding: 1rem;
 }
 
-.footer__container {
+.simple__table--footer__container {
   display: grid;
   grid-template-columns: repeat(8, 1fr);
 

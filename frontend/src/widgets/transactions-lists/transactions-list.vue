@@ -1,21 +1,19 @@
 <template>
     <section class="transactions-list__section">
-        <v-simple-table :headers="['Описание', 'Значение', 'Доход', 'Дата', 'Категория', 'Действия']"
+        <v-simple-table :headers="headers"
             :data="getTransactionsFromArray" 
             :isLoading="isLoading" 
             :page-count="pageCount" 
+            :current-page="currentPage"
             @pagination="changePage"
             @selectPage="selectPage" 
-            @select-items-length="selectSizeItemsView">
+            @select-items-length="selectSizeItemsView" >
             <template #item="{ items }">
                 <transactions-list-item :transation="items">
                     <template #action="{ id }">
                         <transactions-delete-btn :id="id" />
                     </template>
                 </transactions-list-item>
-            </template>
-            <template #footer="{ items }">
-                <div>Всего: {{ items.length }} транзакций</div>
             </template>
         </v-simple-table>
         <div class="transactions-list__section--footer">
@@ -55,6 +53,13 @@ const { fecthAllTransactions, createItem } = store
 
 const newTransaction = ref<ITransactionCreate>()
 const isOpenDialog = ref(false)
+const headers = ref([
+    'Описание',
+    'Сумма',
+    'Дата',
+    'Категория',
+    'Действия'
+])
 
 onMounted(async () => {
     if (getTransactionsFromArray.value.length === 0) {

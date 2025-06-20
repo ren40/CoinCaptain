@@ -3,7 +3,8 @@
         <form class="transactions-create-form">
             <div class="form__group">
                 <label for="description">Описание:</label>
-                <input v-model="newItem.description" class="form__input" type="text" id="description" name="description" required />
+                <input v-model="newItem.description" class="form__input" type="text" id="description" name="description"
+                    required />
             </div>
             <div class="form__group">
                 <label for="amount">Сумма:</label>
@@ -48,15 +49,10 @@ const newItem = ref(props.newTransaction || {
     categoryId: 0
 });
 
-
 watch(newItem, () => {
-    console.log('New item updated:', newItem.value, newItem.value.amount < 0);
-    if (newItem.value.amount < 0) {
+    if (newItem.value.amount < 0 && newItem.value.isIncome) {
         newItem.value.isIncome = false
-    } else {
-        newItem.value.isIncome = true
     }
-
     emits('update', newItem.value)
-}, {deep: true})
+}, { deep: true })
 </script>

@@ -14,7 +14,7 @@
 -- ADD CONSTRAINT fk_user_id FOREIGN KEY (user_id) REFERENCES Users(id),
 -- ADD CONSTRAINT fk_category_id FOREIGN KEY (category_id) REFERENCES Categories(id);
 
-CREATE TABLE Transactions (
+CREATE TABLE transactions (
     id SERIAL PRIMARY KEY,
     user_id INT NOT NULL,
     date DATE NOT NULL,

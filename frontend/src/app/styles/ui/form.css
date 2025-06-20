@@ -52,19 +52,20 @@
 
 .form__select {
   position: relative;
-  min-height: 2.5rem;
+  height: 2.4rem;
   appearance: none;
   -webkit-appearance: none;
   overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: left;
-  padding: 0.5rem 1rem;
+  padding: .5rem .5rem;
   border-color: #474747 !important;
   color: var(--white) !important;
   border-radius: 0.5rem;
   background-color: var(--black-tints-200);
   border: 1px solid;
+  text-align: center;
   &:focus {
     outline: none;
     box-shadow: 0 0 0 3px #b0bafe;
@@ -128,6 +129,8 @@
 }
 
 .form__btn {
+  appearance: none;
+  -webkit-appearance: none;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -183,4 +186,10 @@
     box-shadow: 0 0 0 3px #b0bafe;
     color: var(--white);
   }
+}
+
+.form__btn--active {
+  background-color: var(--secondary-purple-600);
+  border-color: var(--secondary-purple-600);
+  color: var(--white);
 }

@@ -15,6 +15,7 @@
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 const route = useRoute()
+//TODO надо добавить активный класс для текущей страницы
 
 const breadcrumbs = computed(() => {
     let paths = []
@@ -34,3 +35,35 @@ const breadcrumbs = computed(() => {
 })
 
 </script>
+<style scoped>
+.breadcrumb {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 4rem;
+}
+.breadcrumb_list {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 4rem;
+    gap: .1rem;
+}
+.breadcrumb_list--item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 4rem;
+    gap: .1rem;
+}
+.breadcrumb_item--link {
+    text-decoration: none;
+    color: var(--white);
+    &:hover {
+        color: var(--secondary-purple-400);
+    }
+    &:active {
+        color: var(--secondary-purple-500);
+    }
+}
+</style>

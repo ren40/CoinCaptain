@@ -2,11 +2,13 @@
   <form class="auth_form--wrapper" @submit.prevent="onLogin">
     <input
       class="auth_form form__input"
+      autocomplete="username"
       placeholder="Логин"
       v-model.trim="username"
     />
     <input
       class="auth_form form__input"
+      autocomplete="current-password"
       type="password"
       placeholder="Пароль"
       v-model.trim="password"

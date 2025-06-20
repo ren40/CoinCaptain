@@ -4,29 +4,22 @@
             <header-nav />
         </header>
         <aside class="layout__nav">
-            <nav>
-                <ul>
-                    <li><a href="/">Dashboard</a></li>
-                    <li><a href="/transactions">Transactions</a></li>
-                    <li><a href="/reports">Reports</a></li>
-                    <li><a>Настройки</a></li>
-                </ul>
-            </nav>
+            <aside-nav-list />
         </aside>
         <main class="layout__main">
             <div class="layout__content">
-                <transactions-list />
+               <router-view />
             </div>
         </main>
         <footer class="layout__footer">
-
         </footer>
     </div>
 </template>
 
 <script lang="ts" setup>
-import { HeaderNav } from '@/widgets'
-import { TransactionsList } from '@/widgets'
+import { HeaderNav, AsideNavList } from '@/widgets'
+import { RouterView } from 'vue-router';
+
 </script>
 
 <style lang="css" scoped>

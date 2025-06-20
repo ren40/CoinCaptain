@@ -1,0 +1,30 @@
+.budget-progress {
+    width: 100%;
+    padding: 1rem;
+    background: var(--black-tints-400);
+    border-radius: 0.5rem;
+  }
+  .budget-info {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: .5rem;
+    font-size: 1rem;
+  }
+  .progress-bar {
+    width: 100%;
+    height: .6rem;
+    background: var(--black-tints-100);
+    border-radius: .5rem;
+    overflow: hidden;
+    margin-bottom: .5rem;
+  }
+  .progress-bar__fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--secondary-purple-500), var(--secondary-purple-200));
+    transition: width 0.4s;
+  }
+  .budget-percent {
+    text-align: right;
+    font-size: .8rem;
+    color: #6c6c6c;
+  }
