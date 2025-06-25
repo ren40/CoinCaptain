@@ -1,8 +1,8 @@
 <template>
     <nav class="aside-nav-list">
         <ul class="aside-nav-list__list">
-            <li v-for="link in navList" :key="link.path" class="aside-nav-list__item">
-                <router-link :to="link.path">{{ link.name }}</router-link>
+            <li v-for="link in navList" :key="link.namePath" class="aside-nav-list__item">
+                <router-link :to="{ name: link.namePath }">{{ link.name }}</router-link>
             </li>
         </ul>
     </nav>
@@ -12,19 +12,15 @@
 const navList = [
     {
         name: 'Главная',
-        path: '/',
+        namePath: 'MainLayoutPage',
     },
     {
         name: 'Доска',
-        path: '/dashboard',
-    },
-    {
-        name: 'Транзакции',
-        path: '/transactions',
+        namePath: 'DashboardPage',
     },
     {
         name: 'Настройки',
-        path: '/settings',
+        namePath: 'SettingsPage',
     }
 ]
 

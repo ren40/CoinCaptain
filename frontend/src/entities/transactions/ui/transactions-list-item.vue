@@ -1,9 +1,9 @@
 <template>
     <tr class="simple__table--row">
         <td>{{ transation.description }}</td>
-        <td>{{ getAmount(transation.amount) }}</td>
+        <td>{{ getAmount(transation.amount ?? 0) }}</td>
         <td>{{ getParseDate(transation.date) }}</td>
-        <td>{{ transation.categoryId }}</td>
+        <td>{{ getCategoryName(transation.categoryId?.toString() ?? '') }}</td>
         <td>
             <slot name="action" :id="transation.id" />
         </td>
@@ -11,6 +11,9 @@
 </template>
 <script lang="ts" setup>
 import type { ITransactions } from '@/entities/transactions';
+import { useCategoryStore } from '@/entities'
+
+const { getCategoryById } = useCategoryStore()
 
 const props = defineProps<{
     transation: ITransactions
@@ -25,7 +28,17 @@ const getParseDate = (date: string): string => {
     });
 }
 
-const getAmount = (amount: number): string => {
-    return amount > 0 && props.transation.isIncome ? `+${amount}` : `-${amount}`;
+const getCategoryName = (categoryId: string): string => {
+    const category = getCategoryById(categoryId)
+    return category ? category.name : 'Неизвестная категория'
 }
+
+const getAmount = (amount: number): string => {
+    if (props.transation.isIncome) {
+        return amount > 0 ? `+${amount}` : `${amount}`;
+    } else {
+        return amount < 0 ? `${amount}` : `-${amount}`;
+    }
+}
+
 </script>

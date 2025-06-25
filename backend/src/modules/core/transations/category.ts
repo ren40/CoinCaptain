@@ -14,7 +14,7 @@ category.use(logger())
 
 const schemeCategory = z.object({
     name: z.string(),
-    userId: z.number()
+    color: z.string().optional()
 }) as z.ZodType<ICategoryScheme>;
 
 //POST

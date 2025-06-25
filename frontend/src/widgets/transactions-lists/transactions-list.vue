@@ -87,8 +87,8 @@ const onCreateAndExit = async () => {
                 date: new Date().toISOString().split('T')[0],
                 categoryId: 0
             }
-            fecthAllTransactions()
         }
+        fecthAllTransactions()
     } catch (error) {
         console.error('Error creating transaction:', error)
     }

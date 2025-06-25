@@ -16,9 +16,10 @@ export const useCategoryStore = defineStore('category', () => {
                 if (response.status === 200) {
                     console.log('Fetched categories:', response.data)
                     categories.value.clear()
-                    const categoriesData = response.data.categories as ICategory[]
+                    const categoriesData = response.data as ICategory[]
+                    
                     categoriesData.forEach((category) => {
-                        categories.value.set(category.id, category)
+                        categories.value.set('' +category.id, category)
                     })
                 }
             })
@@ -30,12 +31,12 @@ export const useCategoryStore = defineStore('category', () => {
     }
 
     const getCategoryById = (categoryId: string) => {
-        return categories.value.get(categoryId)
+         return categories.value.get(categoryId)
     }
 
-    const getCategoriesFromArray = computed(() => {
+    const getCategoriesFromArray = () => {
         return Array.from(categories.value.values())
-    })
+    }
 
     const editCategory = async (categoryId: string, updatedCategory: ICategoryCreate) => {
         try {
@@ -44,7 +45,6 @@ export const useCategoryStore = defineStore('category', () => {
                 if (response.status === 200) {
                     console.log('Updated category:', response.data)
                     categories.value.set(categoryId, response.data)
-
                 }
             })
         } catch (e) {

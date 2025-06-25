@@ -22,7 +22,14 @@
                 <label for="categoryId">Категория:</label>
                 <select class="form__select" v-model="newItem.categoryId" id="categoryId" name="categoryId">
                     <option value="">--Пожалуйста выберите категорию--</option>
-                    <!-- Здесь будут опции категорий -->
+                    <option
+                        v-for="category in getCategoriesFromArray"
+                        :key="category.id"
+                        :value="category.id"
+                        :style="{ color: category.color }"
+                    >
+                        {{ category.name }}
+                    </option>
                 </select>
             </div>
         </form>
@@ -30,8 +37,11 @@
 </template>
 
 <script lang="ts" setup>
-import type { ITransactionCreate } from '@/entities';
-import { ref, watch } from 'vue';
+import { useCategoryStore, type ITransactionCreate } from '@/entities';
+import { storeToRefs } from 'pinia';
+import { onMounted, ref, watch } from 'vue';
+
+const { getCategoriesFromArray } = storeToRefs(useCategoryStore())
 
 const props = defineProps<{
     newTransaction?: ITransactionCreate
@@ -48,6 +58,13 @@ const newItem = ref(props.newTransaction || {
     date: new Date().toISOString().split('T')[0], // Текущая дата в формате YYYY-MM-DD
     categoryId: 0
 });
+ 
+onMounted(() => {
+    if (getCategoriesFromArray.value.length === 0) {
+        console.log('Категорий нет')
+        useCategoryStore().fetchAllCategories()
+    }
+})
 
 watch(newItem, () => {
     if (newItem.value.amount < 0 && newItem.value.isIncome) {
