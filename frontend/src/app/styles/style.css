@@ -61,6 +61,9 @@ img {
   display: block;
   max-inline-size: 100%;
 }
+hr {
+  width: 100%;
+}
 
 #app {
   min-height: 100vh;

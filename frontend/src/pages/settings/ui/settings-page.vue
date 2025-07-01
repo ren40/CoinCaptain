@@ -3,7 +3,7 @@
         <h2 class="settings-page__title">Настройки</h2>
         <div class="settings-page__content">
             <p>Настройки категорий</p>
-            <CategorySettings />
+            <category-settings />
         </div>
     </section>
 </template>

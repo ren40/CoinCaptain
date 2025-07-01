@@ -1,0 +1,1 @@
+export { default as BudgetPage } from './ui/budget-page.vue' 

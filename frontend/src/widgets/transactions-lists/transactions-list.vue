@@ -1,13 +1,8 @@
 <template>
     <section class="transactions-list__section">
-        <v-simple-table :headers="headers"
-            :data="getTransactionsFromArray" 
-            :isLoading="isLoading" 
-            :page-count="pageCount" 
-            :current-page="currentPage"
-            @pagination="changePage"
-            @selectPage="selectPage" 
-            @select-items-length="selectSizeItemsView" >
+        <v-simple-table :headers="headers" :data="getTransactionsFromArray" :isLoading="isLoading"
+            :page-count="pageCount" :current-page="currentPage" @pagination="changePage" @selectPage="selectPage"
+            @select-items-length="selectSizeItemsView">
             <template #item="{ items }">
                 <transactions-list-item :transation="items">
                     <template #action="{ id }">
@@ -88,7 +83,8 @@ const onCreateAndExit = async () => {
                 categoryId: 0
             }
         }
-        fecthAllTransactions()
+
+        await fecthAllTransactions()
     } catch (error) {
         console.error('Error creating transaction:', error)
     }

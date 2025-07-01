@@ -1,4 +1,4 @@
-import { useCategoryStore } from '@/entities'
+import { useCategoryStore, useBudget } from '@/entities'
 import type { RouteRecordRaw } from 'vue-router'
 
 

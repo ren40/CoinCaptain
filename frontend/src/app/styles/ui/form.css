@@ -188,7 +188,20 @@
     color: var(--white);
   }
 }
-
+.form__btn--success {
+  background-color: var(--green-500);
+  color: var(--green-900);
+  &:hover {
+    background-color: #6f9c6f;
+    box-shadow: 0 0 0 3px #6f9c6f;
+    color: var(--white);
+  }
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px #b0bafe;
+    color: var(--white);
+  }
+}
 .form__btn--active {
   background-color: var(--secondary-purple-600);
   border-color: var(--secondary-purple-600);

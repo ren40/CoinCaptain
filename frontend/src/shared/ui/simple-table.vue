@@ -56,6 +56,7 @@
     </div>
 </template>
 <script lang="ts" setup generic="T">
+// TODO надо сделать плавный переход 
 const props = defineProps<{
     headers: string[]
     data: T[]

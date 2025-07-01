@@ -19,7 +19,7 @@ export const useCategoryStore = defineStore('category', () => {
                     const categoriesData = response.data as ICategory[]
                     
                     categoriesData.forEach((category) => {
-                        categories.value.set('' +category.id, category)
+                        categories.value.set(category.id.toString(), category)
                     })
                 }
             })

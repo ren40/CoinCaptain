@@ -1,6 +1,6 @@
 <template>
     <div class="dashboard">
-        <budget :budget="1000" :spent="500" />
+        <budget />
         <transactions-list />
     </div>
 </template>

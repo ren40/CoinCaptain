@@ -21,13 +21,9 @@
             <div class="form__group">
                 <label for="categoryId">Категория:</label>
                 <select class="form__select" v-model="newItem.categoryId" id="categoryId" name="categoryId">
-                    <option value="">--Пожалуйста выберите категорию--</option>
-                    <option
-                        v-for="category in getCategoriesFromArray"
-                        :key="category.id"
-                        :value="category.id"
-                        :style="{ color: category.color }"
-                    >
+                    <option disabled value="">--Пожалуйста выберите категорию--</option>
+                    <option v-for="category in getCategoriesFromArray" :key="category.id" :value="category.id"
+                        :style="{ color: category.color }">
                         {{ category.name }}
                     </option>
                 </select>
@@ -39,9 +35,9 @@
 <script lang="ts" setup>
 import { useCategoryStore, type ITransactionCreate } from '@/entities';
 import { storeToRefs } from 'pinia';
-import { onMounted, ref, watch } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 
-const { getCategoriesFromArray } = storeToRefs(useCategoryStore())
+const { categories } = storeToRefs(useCategoryStore())
 
 const props = defineProps<{
     newTransaction?: ITransactionCreate
@@ -58,7 +54,11 @@ const newItem = ref(props.newTransaction || {
     date: new Date().toISOString().split('T')[0], // Текущая дата в формате YYYY-MM-DD
     categoryId: 0
 });
- 
+
+const getCategoriesFromArray = computed(() => {
+    return Array.from(categories.value.values())
+})
+
 onMounted(() => {
     if (getCategoriesFromArray.value.length === 0) {
         console.log('Категорий нет')

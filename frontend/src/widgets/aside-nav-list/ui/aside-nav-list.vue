@@ -19,9 +19,13 @@ const navList = [
         namePath: 'DashboardPage',
     },
     {
+        name: "Бюджет",
+        namePath: 'BudgetPage'
+    },
+    {
         name: 'Настройки',
         namePath: 'SettingsPage',
-    }
+    },
 ]
 
 </script>
@@ -29,11 +33,13 @@ const navList = [
 .aside-nav-list {
     padding: 20px;
 }
+
 .aside-nav-list__list {
     list-style: none;
     padding: 0;
     margin: 0;
 }
+
 .aside-nav-list__item {
     margin-bottom: 10px;
 }
