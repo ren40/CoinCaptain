@@ -84,9 +84,9 @@
 
 .budget-page {
   padding: 2rem;
-  max-width: 1200px;
   background-color: var(--black-tints-400);
   border-radius: 0.5rem;
+  width: 100%;
 }
 
 .budget-page__header {

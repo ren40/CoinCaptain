@@ -1,9 +1,9 @@
 <template>
-    <div class="wrapper">
+    <div class="wrapper" :class="{ 'wrapper--open': !isOpen }">
         <header class="layout__header">
             <header-nav />
         </header>
-        <aside class="layout__nav">
+        <aside class="layout__nav" :class="{ 'layout__nav--open': !isOpen }">
             <aside-nav-list />
         </aside>
         <main class="layout__main">
@@ -18,7 +18,9 @@
 
 <script lang="ts" setup>
 import { HeaderNav, AsideNavList } from '@/widgets'
-import { RouterView } from 'vue-router';
+import { RouterView } from 'vue-router'
+import { useAsideMenu } from '@/entities'
+const { isOpen } = useAsideMenu()
 
 </script>
 
@@ -26,24 +28,34 @@ import { RouterView } from 'vue-router';
 .wrapper {
     display: grid;
     height: calc(100vh - 4rem);
-    grid-template-columns: 200px 1fr;
+    grid-template-columns: 60px auto auto;
     grid-template-rows: auto 1fr auto;
     grid-template-areas:
-        "hd hd hd"
+        "sd hd hd"
         "sd main main"
-        "ft ft ft";
+        "sd ft ft";
+}
+
+.wrapper--open {
+    grid-template-columns: 200px auto auto;
 }
 
 .layout__header {
     height: 4.4rem;
     grid-area: hd;
-    background-color: #8ca0ff;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .layout__nav {
     grid-area: sd;
-    background-color: rgba(17, 233, 125, 0.067);
+    width: 60px;
+    transition: width 0.3s ease;
 }
+
+.layout__nav--open {
+    width: 200px;
+}
+
 
 .layout__main {
     overflow: hidden;

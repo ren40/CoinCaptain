@@ -10,3 +10,9 @@
   align-items: center;
   list-style: none;
 }
+
+.header__nav--item__wrapper {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+}

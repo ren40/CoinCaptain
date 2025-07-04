@@ -43,25 +43,32 @@ const breadcrumbs = computed(() => {
     height: 4rem;
 }
 .breadcrumb_list {
+    padding: 0;
     display: flex;
     align-items: center;
     justify-content: center;
     height: 4rem;
     gap: .1rem;
+    list-style: none;
 }
+
 .breadcrumb_list--item {
     display: flex;
     align-items: center;
     justify-content: center;
     height: 4rem;
+    list-style: none;
     gap: .1rem;
 }
+
 .breadcrumb_item--link {
     text-decoration: none;
     color: var(--white);
+
     &:hover {
         color: var(--secondary-purple-400);
     }
+
     &:active {
         color: var(--secondary-purple-500);
     }

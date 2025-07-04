@@ -71,10 +71,7 @@
 
 <script lang="ts" setup>
 import { ref, watch } from 'vue'
-import { useBudget } from '@/entities'
 import type { IBudgetCreate } from '@/entities'
-
-const { isLoading } = useBudget()
 
 const props = defineProps<{
     budget?: IBudgetCreate
@@ -116,17 +113,13 @@ const updateEndDate = () => {
     newBudget.value.endDate = endDate.toISOString().split('T')[0]
 }
 
-// Следим за изменениями периода и даты начала
-const watchPeriod = ref(newBudget.value.period)
-const watchStartDate = ref(newBudget.value.startDate)
-
-// Обновляем дату окончания при изменении периода или даты начала
-if (watchPeriod.value !== newBudget.value.period || watchStartDate.value !== newBudget.value.startDate) {
+watch(() => newBudget.value.period, () => {
     updateEndDate()
-    watchPeriod.value = newBudget.value.period
-    watchStartDate.value = newBudget.value.startDate
-}
+}, { deep: true })
 
+watch(() => newBudget.value.startDate, () => {
+    updateEndDate()
+}, { deep: true })
 
 watch(newBudget, () => {
     emit('update', newBudget.value)

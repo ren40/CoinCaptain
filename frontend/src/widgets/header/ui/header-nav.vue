@@ -2,12 +2,11 @@
     <nav class="header__nav">
         <ul class="header__nav--list">
             <li>
-                <!-- TODO ICon User And Name -->
-                 {{  }}
-            </li>
-            <li>
-                <!-- TODO breadcrumbs -->
-                <bread-crumbs />
+                <div class="header__nav--item__wrapper"> 
+                    <toggle-aside-menu />
+                    <bread-crumbs />
+                </div>
+
             </li>
 
             <li>
@@ -19,7 +18,6 @@
 </template>
 
 <script lang="ts" setup>
-import { BreadCrumbs, VLogoutBtn } from '@/features'
-
+import { BreadCrumbs, VLogoutBtn, ToggleAsideMenu } from '@/features'
 
 </script>
