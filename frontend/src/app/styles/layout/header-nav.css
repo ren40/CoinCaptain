@@ -1,0 +1,18 @@
+.header__nav {
+  height: 4.5rem;
+}
+
+.header__nav--list {
+  display: flex;
+  height: 4.5rem;
+  padding: 0 1.3rem;
+  justify-content: space-between;
+  align-items: center;
+  list-style: none;
+}
+
+.header__nav--item__wrapper {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+}

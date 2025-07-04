@@ -3,8 +3,10 @@ import './styles/style.css'
 import App from '../App.vue'
 import { default as router } from './routes'
 import { createPinia } from 'pinia'
+import { VClickOutside as vClickOutside} from '@/shared'
 
 createApp(App)
 .use(createPinia())
 .use(router)
+.directive('v-click-outside', vClickOutside)
 .mount('#app')
