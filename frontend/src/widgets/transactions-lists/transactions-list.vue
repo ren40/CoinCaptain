@@ -1,17 +1,23 @@
 <template>
     <section class="transactions-list__section">
-        <v-simple-table :headers="headers" :data="getTransactionsFromArray" :isLoading="isLoading"
-            :page-count="pageCount" :current-page="currentPage" @pagination="changePage" @selectPage="selectPage"
-            @select-items-length="selectSizeItemsView">
-            <template #item="{ items }">
-                <transactions-list-item :transation="items">
-                    <template #action="{ id }">
-                        <transactions-delete-btn :id="id" />
-                    </template>
-                </transactions-list-item>
-            </template>
-        </v-simple-table>
-        <div class="transactions-list__section--footer">
+        <header class="transactions-list__section--header">
+            <transactions-filter-form />
+        </header>
+        <main>
+            <v-simple-table :headers="headers" :data="getTransactionsFromArray" :isLoading="isLoading"
+                :page-count="pageCount" :current-page="currentPage" @pagination="changePage" @selectPage="selectPage"
+                @select-items-length="selectSizeItemsView">
+                <template #item="{ items }">
+                    <transactions-list-item :transation="items">
+                        <template #action="{ id }">
+                            <transactions-delete-btn :id="id" />
+                        </template>
+                    </transactions-list-item>
+                </template>
+            </v-simple-table>
+        </main>
+
+        <footer class="transactions-list__section--footer">
             <button class="form__btn " @click="openDialog">Создать</button>
             <v-dialog :isOpen="isOpenDialog" @close="isOpenDialog = false" :is-loading="isLoading">
                 <template #header>
@@ -29,7 +35,7 @@
                     </div>
                 </template>
             </v-dialog>
-        </div>
+        </footer>
     </section>
 
 </template>
@@ -40,7 +46,7 @@ import { useTransactions, type ITransactionCreate } from '@/entities/transaction
 import { onMounted, ref } from 'vue'
 import { TransactionsListItem } from '@/entities'
 import { VDialog, VSimpleTable } from '@/shared'
-import { TransactionsCreateForm, TransactionsDeleteBtn } from '@/features'
+import { TransactionsCreateForm, TransactionsDeleteBtn, TransactionsFilterForm } from '@/features'
 
 const store = useTransactions()
 const { getTransactionsFromArray, isLoading, pageCount, currentPage, sizeItemsView } = storeToRefs(store)
@@ -49,7 +55,7 @@ const { fecthAllTransactions, createItem } = store
 const newTransaction = ref<ITransactionCreate>()
 const isOpenDialog = ref(false)
 const headers = ref([
-    'Описание',
+    'Наименование',
     'Сумма',
     'Дата',
     'Категория',
@@ -115,6 +121,12 @@ const selectSizeItemsView = (size: number) => {
     background-color: var(--black-tints-400);
     width: 100%;
     height: 100%;
+}
+
+.transactions-list__section--header {
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
 }
 
 .transactions-list__section--footer {

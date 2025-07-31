@@ -99,7 +99,36 @@ transations.get('/', bearerAuth({
         const userID = await getUserID(decodePayload.username)
         const currentPage = Number.parseInt(c.req.query('currentPage') || '')
         const sizeItemsView = Number.parseInt(c.req.query('sizeItemsView') || '')
-        const rowsTransations = await dbClient.request<Array<ITransation>>(`SELECT id, date, description, amount, category_id, is_income, created_at FROM transactions WHERE user_id = '${userID}';`) as ITransation[][]
+        const filter = c.req.query('filter') || ''
+
+        let query = `SELECT id, date, description, amount, category_id, is_income, created_at FROM transactions WHERE user_id = '${userID}' `
+
+        if (filter) {
+            const filterArr = filter.split('&')
+            filterArr.forEach((item) => {
+                if (item.includes('=')) {
+                    const [key, value] = item.split('=')
+                    if (key === 'month') {
+                        if (value === 'current') {
+                            query += `AND date >= DATE_TRUNC('month', CURRENT_DATE) AND date < DATE_TRUNC('month', CURRENT_DATE) + INTERVAL '1 month' `
+                        } else if (value === 'all') {
+                            query += `AND date >= '2000-01-01' `
+                        } else {
+                            query += `AND date >= '${value}-01' AND date < '${value}-31' `
+                        }
+                    }
+                    if (key === 'search') {
+                        if (value) {
+                            query += `AND description ILIKE '%${value}%' `
+                        } else {
+                            query += `AND description ILIKE '%%' `
+                        }
+                    }
+                }
+            })
+        }
+
+        const rowsTransations = await dbClient.request<Array<ITransation>>(query) as ITransation[][]
 
         if (rowsTransations.length === 0) {
             return c.json({
@@ -114,8 +143,7 @@ transations.get('/', bearerAuth({
 
         let paginateArr = paginate(transations, currentPage, sizeItemsView)
         const pageCount = Math.ceil(transations.length / sizeItemsView)
-        
-        
+
         return c.json({
             transations: paginateArr,
             currentPage,

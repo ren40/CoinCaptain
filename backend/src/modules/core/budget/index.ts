@@ -27,7 +27,7 @@ const schemeNewBudget = z.object({
 })
 
 const schemeUpdateBudget = z.object({
-    amount: z.number().positive({ message: 'Amount must be positive' }).optional(),
+    amount: z.any().optional(),
     period: z.enum(['weekly', 'monthly', 'yearly'], { message: 'Period must be weekly, monthly, or yearly' }).optional(),
     startDate: z.string().refine((date) => !isNaN(Date.parse(date)), {
         message: 'Start date must be a valid date string',
@@ -268,7 +268,7 @@ budget.put('/:id', zValidator('json', schemeUpdateBudget), bearerAuth({
         const updateFields = []
 
         if (updateBudget.amount !== undefined) {
-            updateFields.push(`amount = ${updateBudget.amount}`)
+            updateFields.push(`amount = ${parseInt(updateBudget.amount)}`)
         }
         if (updateBudget.period !== undefined) {
             updateFields.push(`period = '${updateBudget.period}'`)
@@ -284,6 +284,7 @@ budget.put('/:id', zValidator('json', schemeUpdateBudget), bearerAuth({
         }
 
         updateFields.push('updated_at = CURRENT_TIMESTAMP')
+        console.log(updateBudget)
 
         const result = await dbClient.request<Array<IBudget>>(`
             UPDATE budgets 

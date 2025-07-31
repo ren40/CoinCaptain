@@ -11,6 +11,7 @@ export const useTransactions = defineStore('transactions', () => {
     const pageCount = ref(0)
     const currentPage = ref(0)
     const sizeItemsView = ref(5)
+    const filter = ref('month=current')
 
     const getTransactionsFromArray = computed(() => {
         return Array.from(transactionsListsMap.value.values())
@@ -23,6 +24,7 @@ export const useTransactions = defineStore('transactions', () => {
                 params: {
                     currentPage: currentPage.value || 0,
                     sizeItemsView: sizeItemsView.value || 5,
+                    filter: filter.value || '' // По умолчанию фильтр по текущему месяцу
                 }
             }).then((response) => {
                 if (response.status === 200) {
@@ -39,6 +41,46 @@ export const useTransactions = defineStore('transactions', () => {
             }).catch((err) => {
                 console.error('Error fetching transactions:', err)
             }).finally(() => { isLoading.value = false })
+        } catch (e) {
+            console.error(e)
+            if (e instanceof Error) {
+                throw new Error(e.message)
+            } else {
+                throw new Error('Internal server error')
+            }
+        }
+    }
+
+    const fecthAllTransactionsWithFilter = async (filter: string) => {
+        try {
+            isLoading.value = true
+            axiosInstance.get('/api/transations', {
+                params: {
+                    currentPage: currentPage.value || 0,
+                    sizeItemsView: sizeItemsView.value || 5,
+                    filter: filter || ''
+                }
+            }).then((response) => {
+                if (response.status === 200) {
+                    console.log('Fetched transactions with filter:', response.data)
+                    transactionsListsMap.value.clear()
+                    const transactions = response.data.transations as ITransactions[]
+                    pageCount.value = response.data.pageCount || 0  
+                    currentPage.value = response.data.currentPage || 0
+                    sizeItemsView.value = response.data.sizeItemsView || 5
+                    transactions.forEach((transaction) => {
+                        transactionsListsMap.value.set(transaction.id, transaction)
+                    })
+                }
+            }).catch((err) => {
+                console.error('Error fetching transactions with filter:', err)
+                if (err instanceof Error) {
+                    throw new Error(err.message)
+                } else {
+                    throw new Error('Internal server error')
+                }
+            }
+            ).finally(() => { isLoading.value = false })
         } catch (e) {
             console.error(e)
             if (e instanceof Error) {
@@ -80,6 +122,10 @@ export const useTransactions = defineStore('transactions', () => {
 
     }
 
+    const setFilter = (newFilter: string) => {
+        filter.value = newFilter
+    }
+
     const deleteItem = async (id: number) => {
         try {
             isLoading.value = true
@@ -113,9 +159,12 @@ export const useTransactions = defineStore('transactions', () => {
         pageCount,
         currentPage,
         sizeItemsView,
+        filter,
         fecthAllTransactions,
+        fecthAllTransactionsWithFilter,
         createItem,
         editItem,
+        setFilter,
         deleteItem,
     }
 
