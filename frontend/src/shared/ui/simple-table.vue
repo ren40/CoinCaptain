@@ -16,7 +16,7 @@
             </tr>
 
             <tr v-else-if="data.length === 0" class="empty">
-                <td :colspan="headers.length - 1" class="simple__table--empty">
+                <td :colspan="headers.length" class="simple__table--empty">
                     <div class="empty-container">
                         <p>Список пуст</p>
                     </div>

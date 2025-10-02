@@ -20,7 +20,7 @@ export const useAxios = () => {
         return { axiosInstance }
     }
 
-    axiosInstance = createAxiosInstance(import.meta.env.VITE_BACKEND_URL)
+    axiosInstance = createAxiosInstance(import.meta.env.VITE_BACKEND_URL || '/api')
     const router = useRouter()
 
     axiosInstance.interceptors.request.use((config) => {

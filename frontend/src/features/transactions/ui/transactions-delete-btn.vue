@@ -1,5 +1,5 @@
 <template>
-    <button class="form__btn form__btn--danger transactions-delete-btn" @click="onShowDialog">
+    <button class="form__btn form__btn--danger transactions-delete-btn" @click.stop="onShowDialog">
         <span class="transactions-delete-btn__text">Удалить</span>
     </button>
     <v-dialog :isOpen="isOpenDialog" @close="isOpenDialog = false" :is-loading="false">

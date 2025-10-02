@@ -27,4 +27,9 @@
     --green-300: oklch(0.912 0.0742 131.91) !important;
     --green-200: oklch(0.9214 0.0691 121.91) !important;
     --green-100: oklch(94.172% 0.07436 146.756) !important;
+
+    --yellow-900: oklch(0.9343 0.1022 94.56) !important;
+
+    --blue-900: oklch(0.8903 0.0644 232.95) !important;
+    --blue-500: oklch(0.9598 0.0233 231.83) !important;
 }

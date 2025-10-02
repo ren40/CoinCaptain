@@ -27,9 +27,25 @@
 }
 
 .category-settings__item {
-  display: grid;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   gap: 1rem;
-  grid-template-columns: repeat(3, 1fr);
+  border-bottom: 1px solid var(--black-tints-200);
+  cursor: pointer;
+  &:hover {
+    background-color: var(--secondary-purple-500);
+  }
+  &:last-child {
+    border-bottom: none;
+  }
+  &:active {
+    background-color: var(--secondary-purple-600);
+  }
+  &:focus {
+    outline: none;
+    background-color: var(--secondary-purple-500);
+  }
 }
 
 .category-settings__item-actions {

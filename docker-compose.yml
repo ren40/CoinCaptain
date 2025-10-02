@@ -1,0 +1,96 @@
+services:
+  db:
+    image: postgres:14.17-bookworm
+    container_name: postgresql_db
+    restart: always
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    volumes:
+      - ./init_data_base:/docker-entrypoint-initdb.d # Инициализация схемы
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - default
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: coin_backend
+    restart: always
+    environment:
+      - HOST=db
+      - PORT=5432
+      - DATABASE=${POSTGRES_DB}
+      - USER=${POSTGRES_USER}
+      - PASSWORD=${POSTGRES_PASSWORD}
+      - MAX_RETRIES=10
+      - RETRY_INTERVAL_MS=5000
+    depends_on:
+      - db
+    ports:
+      - "3100:3100"
+    networks:
+      - default
+
+  # frontend:
+  #   build: ./frontend
+  #   container_name: coin_frontend
+  #   restart: always
+  #   depends_on:
+  #     - backend
+  #   ports:
+  #     - "8080:80"
+  #   networks:
+  #     - default
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: coin_frontend
+    restart: always
+    depends_on:
+      - backend
+    ports:
+      - "8080:80"
+    networks:
+      - default
+
+  pgadmin:
+    image: dpage/pgadmin4:9.1.0
+    container_name: pgadmin_ui
+    restart: always
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=${PGADMIN_DEFAULT_EMAIL}
+      - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_DEFAULT_PASSWORD}
+      - PGADMIN_CONFIG_SERVER_MODE=False
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    ports:
+      - "5050:80"
+    networks:
+      - default
+  nginx:
+    image: nginx:stable-alpine
+    container_name: nginx_proxy
+    restart: always
+    ports:
+      - "80:80"  # Публичный порт
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - frontend
+      - backend
+    networks:
+      - default
+
+volumes:
+  postgres_data: # Данные PostgreSQL
+  pgadmin_data:  # Данные PgAdmin
+
+networks:
+  default:
+    driver: bridge

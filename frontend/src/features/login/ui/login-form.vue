@@ -1,23 +1,13 @@
 <template>
   <form class="auth_form--wrapper" @submit.prevent="onLogin">
-    <input
-      class="auth_form form__input"
-      autocomplete="username"
-      placeholder="Логин"
-      v-model.trim="username"
-    />
-    <input
-      class="auth_form form__input"
-      autocomplete="current-password"
-      type="password"
-      placeholder="Пароль"
-      v-model.trim="password"
-    />
+    <input class="auth_form form__input" autocomplete="username" placeholder="Логин" v-model.trim="username" />
+    <input class="auth_form form__input" autocomplete="current-password" type="password" placeholder="Пароль"
+      v-model.trim="password" />
     <div class="auth__form link__wrapper">
       <!-- <a class="auth__form form__link" href="#">Восстановить пароль</a>
       | -->
       У вас нет учетной записи?
-      <router-link :to="{name: 'RegisterPage'}" class="auth__form form__link" >Зарегистрироваться</router-link>  
+      <router-link :to="{ name: 'RegisterPage' }" class="auth__form form__link">Зарегистрироваться</router-link>
     </div>
     <button class="auth_form form__btn" @click.prevent="onLogin">Войти</button>
   </form>
@@ -27,23 +17,38 @@ import { storeToRefs } from "pinia";
 import { ref } from "vue";
 import { useRouter, RouterLink } from "vue-router";
 import { useAuthStore } from "@/app/store";
+import { useToast } from "@/entities/toast";
 
-const { login } = useAuthStore();
-const { isAuthenticated } = storeToRefs(useAuthStore());
-const router = useRouter();
-const username = ref("");
-const password = ref("");
+const { login } = useAuthStore()
+const { isAuthenticated } = storeToRefs(useAuthStore())
+const router = useRouter()
+const username = ref("")
+const password = ref("")
+const { addToast } = useToast()
 
 const onLogin = async () => {
   await login({
     username: username.value,
     password: password.value,
   })
-  
+
   if (isAuthenticated.value) {
+
+    addToast({
+      message: "Успешный вход",
+      type: "success",
+      duration: 3000,
+    })
+
     router.push({
       name: "DashboardPage",
-    });
+    })
+  } else {
+    addToast({
+      message: "Неверный логин или пароль",
+      type: "error",
+      duration: 3000,
+    })
   }
-};
+}
 </script>

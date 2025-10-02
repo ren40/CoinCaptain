@@ -22,14 +22,14 @@ const scheme = z.object({
 auth.post('/', zValidator('json', scheme), async (c) => {
     try {
         const { username, password } = await c.req.json();
-
+        console.log({ username, password })
         const dbClient = await dbClientInstance()
         const rowsUsers = await dbClient.request<Array<IUser>>(`SELECT * FROM users WHERE username='${username}';`)
 
         if (rowsUsers.length === 0) {
             throw new HTTPException(404, { message: 'User not found' })
         }
-
+        console.log(rowsUsers[0])
         const user = convertArrayToObject<IUser>(Object.values(rowsUsers[0]), ['id', 'username', 'email', 'password', 'role', 'created_at', 'updated_at'])
 
         const isMatch = await Bun.password.verify(password, String(user.password), 'bcrypt')
@@ -43,9 +43,10 @@ auth.post('/', zValidator('json', scheme), async (c) => {
             exp: Math.floor(Date.now() / 1000) + 60 * 60,
             iat: Math.floor(Date.now() / 1000),
         }
-
+        console.log({ payload })
+        console.log(Bun.env.SECRET_KEY, 'SECRET_KEY')
         const token = await sign(payload, Bun.env.SECRET_KEY || '')
-
+        console.log({ token })
         return c.json({
             payload,
             token,

@@ -1,7 +1,7 @@
 <template>
     <article class="transactions-filter-form">
         <div class="transactions-filter-form__search">
-            <input v-model="filterSearch" class="form__input" type="text" placeholder="Поиск по описанию...">
+            <input v-model="filterSearch" class="form__input" type="text" placeholder="Поиск по названию...">
             <button @click="onSearch" class="form__btn">Поиск</button>
         </div>
 

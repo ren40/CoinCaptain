@@ -27,13 +27,28 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted } from 'vue';
-import { useBudget } from '@/entities';
+import { onMounted, watch, computed } from 'vue';
+import { useBudget, useTransactions } from '@/entities';
 import { storeToRefs } from 'pinia';
-
 
 const { fetchActiveBudgetStats } = useBudget();
 const { budgetStats } = storeToRefs(useBudget());
+
+// Получаем транзакции для отслеживания изменений
+const { getTransactionsFromArray } = storeToRefs(useTransactions());
+
+// Фильтруем транзакции только для текущего месяца
+const currentMonthTransactions = computed(() => {
+  const now = new Date();
+  const currentMonth = now.getMonth();
+  const currentYear = now.getFullYear();
+  
+  return getTransactionsFromArray.value.filter(transaction => {
+    const transactionDate = new Date(transaction.date);
+    return transactionDate.getMonth() === currentMonth && 
+           transactionDate.getFullYear() === currentYear;
+  });
+});
 
 const formatCurrency = (amount: number) => {
   return new Intl.NumberFormat('ru-RU', {
@@ -64,6 +79,13 @@ const getPeriodText = (period: string) => {
       return period;
   }
 };
+
+// Отслеживаем изменения в транзакциях текущего месяца и обновляем статистику бюджета
+watch(currentMonthTransactions, () => {
+  if (budgetStats.value) {
+    fetchActiveBudgetStats();
+  }
+}, { deep: true });
 
 onMounted(() => {
   fetchActiveBudgetStats();

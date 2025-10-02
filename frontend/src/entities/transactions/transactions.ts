@@ -6,6 +6,7 @@ import type { ITransactions, ITransactionCreate } from './type'
 
 export const useTransactions = defineStore('transactions', () => {
     const transactionsListsMap = ref(new Map<number, ITransactions>())
+    const currentTransaction = ref<ITransactions | null>(null)
     const { axiosInstance } = useAxios()
     const isLoading = ref(false)
     const pageCount = ref(0)
@@ -16,6 +17,28 @@ export const useTransactions = defineStore('transactions', () => {
     const getTransactionsFromArray = computed(() => {
         return Array.from(transactionsListsMap.value.values())
     })
+
+    const fetchTransactionById = async (id: number) => {
+        try {
+            isLoading.value = true
+            if (currentTransaction.value) { 
+                currentTransaction.value = null
+            } 
+            axiosInstance.get(`/api/transations/${id}`).then((response) => {
+                if (response.status === 200) {
+                    console.log('Fetched transaction:', response.data)
+                    currentTransaction.value = response.data
+                }
+            })
+        } catch (e) {
+            console.error(e)
+            if (e instanceof Error) {
+                throw new Error(e.message)
+            } else {
+                throw new Error('Internal server error')
+            }
+        }
+    }
 
     const fecthAllTransactions = async () => {
         try {
@@ -118,8 +141,39 @@ export const useTransactions = defineStore('transactions', () => {
         }
     }
 
-    const editItem = async (key: string | string[], field: unknown) => {
+    const editItem = async (item: ITransactions) => {
+        try {
+            isLoading.value = true
+            axiosInstance.put(`/api/transations/${item.id}`, item).then((response) => {
+                if (response.status === 200) {
+                    console.log('Transaction updated:', response.data)
+                    const updatedTransaction = response.data as ITransactions
+                    transactionsListsMap.value.set(updatedTransaction.id, updatedTransaction)
+                    // Обновляем currentTransaction если это та же транзакция
+                    if (currentTransaction.value?.id === updatedTransaction.id) {
+                        currentTransaction.value = updatedTransaction
+                    }
+                }
+            }).catch((err) => {
+                console.error('Error updating transaction:', err)
+                if (err instanceof Error) {
+                    throw new Error(err.message)
+                } else {
+                    throw new Error('Internal server error')
+                }
+            }).finally(() => { isLoading.value = false })
+        } catch (err) {
+            console.error('Error updating transaction:', err)
+            if (err instanceof Error) {
+                throw new Error(err.message)
+            } else {
+                throw new Error('Internal server error')
+            }
+        }
+    }
 
+    const clearCurrentTransaction = () => {
+        currentTransaction.value = null
     }
 
     const setFilter = (newFilter: string) => {
@@ -155,15 +209,18 @@ export const useTransactions = defineStore('transactions', () => {
     return {
         isLoading,
         transactionsListsMap,
+        currentTransaction,
         getTransactionsFromArray,
         pageCount,
         currentPage,
         sizeItemsView,
         filter,
         fecthAllTransactions,
+        fetchTransactionById,
         fecthAllTransactionsWithFilter,
         createItem,
         editItem,
+        clearCurrentTransaction,
         setFilter,
         deleteItem,
     }

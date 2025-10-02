@@ -17,7 +17,7 @@ class DBClient implements IDBClient {
             hostname: process.env.HOST || 'localhost',
             port: Number.parseInt(process.env.PORT || '5432'),
 
-            database: process.env.DATABASE || 'postgres',
+            database: process.env.DATABASE || 'postgresql_db',
             username: process.env.USER || 'postgres',
             password: process.env.PASSWORD || 'postgres',
 

@@ -22,7 +22,6 @@ CREATE TABLE transactions (
     amount DECIMAL(10, 2) NOT NULL,
     category_id INT NOT NULL,
     is_income BOOLEAN NOT NULL,
-    balance DECIMAL(10, 2),
     created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id)
 );

@@ -6,7 +6,8 @@
                 v-model="username" />
             <input class="form__input" type="email" placeholder="Почта" required v-model.trim="email" />
             <input class="form__input" type="password" placeholder="Пароль" required v-model.trim="password" />
-            <input class="form__input" type="password" placeholder="Повтори пароль" required v-model.trim="passwordConfirm" />
+            <input class="form__input" type="password" placeholder="Повтори пароль" required
+                v-model.trim="passwordConfirm" />
         </form>
         <div class="register_btn">
             <button :disabled="!isValidate" type="submit" @click="onSubmit"
@@ -23,6 +24,7 @@
 import { computed, ref } from 'vue'
 import { useAuthStore } from '@/app'
 import { useRouter } from 'vue-router'
+import { useToast } from '@/entities/toast'
 
 const username = ref('')
 const email = ref('')
@@ -31,6 +33,7 @@ const passwordConfirm = ref('')
 
 const { register } = useAuthStore()
 const router = useRouter()
+const { addToast } = useToast()
 
 
 const isValidate = computed(() => {
@@ -58,17 +61,31 @@ const isValidEmail = () => {
     return false
 }
 
-const onSubmit = () => {
+const onSubmit = async () => {
     if (isValidate.value) {
-        register({
-            username: username.value,
-            email: email.value,
-            password: password.value
-        }).then(() => {
+        try {
+            await register({
+                username: username.value,
+                email: email.value,
+                password: password.value
+            })
+
+            addToast({
+                message: "Успешное регистрация",
+                type: 'success',
+                duration: 5000
+            })
+
             router.push({
                 name: 'LoginPage'
             })
-        })
+        } catch (e) {
+            addToast({
+                message: "Ошибка регистрации",
+                type: 'error',
+                duration: 0
+            })
+        }
     }
 }
 </script>
