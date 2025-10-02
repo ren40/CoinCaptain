@@ -5,7 +5,7 @@
             <input class="auth__form form__input" type="text" placeholder="Имя пользователя" required
                 v-model="username" />
             <input class="form__input" type="email" placeholder="Почта" required v-model.trim="email" />
-            <input class="form__input" type="password" placeholder="Пароль" required v-model.trim="password" />
+            <v-password-input v-model="password" />
             <input class="form__input" type="password" placeholder="Повтори пароль" required
                 v-model.trim="passwordConfirm" />
         </form>
@@ -25,6 +25,7 @@ import { computed, ref } from 'vue'
 import { useAuthStore } from '@/app'
 import { useRouter } from 'vue-router'
 import { useToast } from '@/entities/toast'
+import { VPasswordInput } from '@/features/password-input'
 
 const username = ref('')
 const email = ref('')

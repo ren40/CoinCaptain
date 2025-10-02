@@ -1,8 +1,9 @@
 <template>
   <form class="auth_form--wrapper" @submit.prevent="onLogin">
-    <input class="auth_form form__input" autocomplete="username" placeholder="Логин" v-model.trim="username" />
-    <input class="auth_form form__input" autocomplete="current-password" type="password" placeholder="Пароль"
-      v-model.trim="password" />
+    <input id="username" class="auth_form form__input" autocomplete="username" placeholder="Логин"
+      v-model.trim="username" />
+   
+    <v-password-input id="password" v-model="password" />
     <div class="auth__form link__wrapper">
       <!-- <a class="auth__form form__link" href="#">Восстановить пароль</a>
       | -->
@@ -18,6 +19,8 @@ import { ref } from "vue";
 import { useRouter, RouterLink } from "vue-router";
 import { useAuthStore } from "@/app/store";
 import { useToast } from "@/entities/toast";
+import { VPasswordInput } from '@/features/password-input';
+
 
 const { login } = useAuthStore()
 const { isAuthenticated } = storeToRefs(useAuthStore())
