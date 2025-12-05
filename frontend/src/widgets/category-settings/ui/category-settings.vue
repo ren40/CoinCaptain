@@ -25,7 +25,7 @@
                 </tr>
 
                 <template v-for="(category) in categoriesList" :key="category.id">
-                    <tr class="category-settings__item">
+                    <tr class="simple__table--row">
                         <td>{{ category.name }}</td>
                         <td class="category-settings__item-actions">
                             <categories-delete-btn :id="category.id" />

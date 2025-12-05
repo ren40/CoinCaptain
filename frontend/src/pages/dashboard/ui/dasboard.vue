@@ -1,11 +1,12 @@
 <template>
     <div class="dashboard">
+        <chart-widget />
         <budget />
         <transactions-list />
     </div>
 </template>
 <script lang="ts" setup>
-import { TransactionsList, Budget } from '@/widgets'
+import { TransactionsList, Budget, ChartWidget } from '@/widgets'
 
 </script>
 <style scoped>

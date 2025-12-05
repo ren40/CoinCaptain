@@ -39,11 +39,6 @@ const isActiveLink = (linkName: string) => {
 
 const navList = [
     {
-        name: 'Главная',
-        namePath: 'MainLayoutPage',
-        icon: 'home'
-    },
-    {
         name: 'Доска',
         namePath: 'DashboardPage',
         icon: 'dashboard'

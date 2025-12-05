@@ -21,7 +21,8 @@ const getCurrentYear = computed(() => new Date().getFullYear())
 
 <style>
 .app_container {
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
 }
 
 .logo {

@@ -13,11 +13,12 @@
     </article>
 </template>
 <script lang="ts" setup>
-import { ref, watch } from 'vue'
+import { storeToRefs } from 'pinia'
+import { onMounted, ref, watch } from 'vue'
 import { useTransactions } from '@/entities'
 
 const { fecthAllTransactions, setFilter } = useTransactions()
-
+const { filter } = storeToRefs(useTransactions())
 const slect_month = ref('current')
 const filterSearch = ref('')
 
@@ -45,6 +46,13 @@ const onSearch = () => {
 watch(slect_month, (newValue) => {
     setFilter(`month=${newValue}&search=${filterSearch.value}`)
     fecthAllTransactions()
+})
+
+onMounted(() => {
+    if (filter.value) {
+        const month = filter.value.split('month=')[1].split('&')[0]
+        slect_month.value = month
+    }
 })
 </script>
 

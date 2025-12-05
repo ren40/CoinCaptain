@@ -12,6 +12,9 @@ export const mainLayoutRoute: RouteRecordRaw = {
             name: 'Домашняя страница',
         }
     },
+    redirect: {
+        name: "DashboardPage"
+    },
     component: () => import('@/pages/layout/ui/layout.vue'),
     children: [
         dashboardRoute,

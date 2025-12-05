@@ -132,8 +132,41 @@
 }
 
 .budget-list__items {
-  display: grid;
+  display: flex;
+  flex-direction: column;
   gap: 1rem;
+}
+@media screen and (max-width: 768px) {
+  .budget-list__items {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .budget-item__actions {
+    display: flex;
+    flex-direction: column;
+  }
+  .budget-item__actions > button {
+    width: 100%;
+  }
+}
+
+@media screen and (max-width: 425px) {
+  .budget-item {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  .budget-item__actions {
+    width: 100%;
+  }
+  .budget-item__actions > button {
+    width: 100%;
+  }
+  .form__btn {
+    text-wrap: wrap;
+    line-height: 90%;
+  }
 }
 
 .budget-item {

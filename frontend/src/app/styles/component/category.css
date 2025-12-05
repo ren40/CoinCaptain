@@ -48,6 +48,16 @@
   }
 }
 
+@media screen and (max-width: 768px) {
+  .category-settings__item-actions {
+    flex-direction: column;
+  }
+  .category-settings__btn {
+    display: flex;
+    justify-content: center;
+  }
+}
+
 .category-settings__item-actions {
   display: flex;
   gap: 0.5rem;

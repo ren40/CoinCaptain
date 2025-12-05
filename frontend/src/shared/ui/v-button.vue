@@ -109,6 +109,12 @@ const buttonAttrs = computed(() => restAttrs)
     position: relative;
 }
 
+@media screen and (max-width: 768px) {
+  .vbutton   {
+    width: 100%;
+  }
+}
+
 .vbutton {
     appearance: none;
     -webkit-appearance: none;
