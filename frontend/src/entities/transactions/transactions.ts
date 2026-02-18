@@ -144,7 +144,9 @@ export const useTransactions = defineStore('transactions', () => {
     const editItem = async (item: ITransactions) => {
         try {
             isLoading.value = true
-            axiosInstance.put(`/api/transations/${item.id}`, item).then((response) => {
+            let tmpItem = item
+            tmpItem.amount = Number(item.amount)
+            axiosInstance.put(`/api/transations/${item.id}`, tmpItem).then((response) => {
                 if (response.status === 200) {
                     console.log('Transaction updated:', response.data)
                     const updatedTransaction = response.data as ITransactions

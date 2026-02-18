@@ -28,7 +28,7 @@
                     <tr class="simple__table--row">
                         <td>{{ category.name }}</td>
                         <td class="category-settings__item-actions">
-                            <categories-delete-btn :id="category.id" />
+                            <categories-delete-btn :id="String(category.id)" />
                             <v-button primary @click="onOpenDialogEdit(category)">Изменить</v-button>
                         </td>
                     </tr>

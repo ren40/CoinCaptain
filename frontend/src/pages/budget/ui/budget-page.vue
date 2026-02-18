@@ -15,7 +15,7 @@
                     <h2>Создать новый бюджет</h2>
                 </template>
                 <template #main>
-                    <budget-create-form @created="onBudgetCreated" @update="onUpdateCreateBudget" />
+                    <budget-create-form v-model="newBudget" />
                 </template>
                 <template #footer>
                     <div class="dialog-form__footer">
@@ -44,6 +44,9 @@
                             </div>
                             <div class="budget-item__dates">
                                 {{ formatDate(budget.startDate) }} - {{ formatDate(budget.endDate) }}
+                            </div>
+                            <div class="budget-item__start-balance" v-if="(budget.startBalance ?? 0) !== 0">
+                                Баланс на начало: {{ formatCurrency(budget.startBalance ?? 0) }}
                             </div>
                         </div>
 
@@ -98,7 +101,17 @@ import { storeToRefs } from 'pinia'
 const { budgets, isLoading } = storeToRefs(useBudget())
 const { fetchBudgets, activateBudget, createBudget, updateBudget } = useBudget()
 
-const newBudget = ref({} as IBudgetCreate)
+const emptyBudget = (): IBudgetCreate => ({
+    amount: 0,
+    period: 'weekly',
+    startDate: '',
+    endDate: '',
+    isActive: false,
+    startBalance: 0,
+})
+
+const newBudget = ref<IBudgetCreate>(emptyBudget())
+
 const editBudget = ref<IBudget | null>(null)
 
 const isCreateBudget = ref(false)
@@ -127,17 +140,13 @@ const openDialog = (budget: IBudget) => {
     isEditBudget.value = true
 }
 
-const getPeriodText = (period: string) => {
-    switch (period) {
-        case 'weekly':
-            return 'Неделя'
-        case 'monthly':
-            return 'Месяц'
-        case 'yearly':
-            return 'Год'
-        default:
-            return period
+const getPeriodText = (period: IBudget['period']) => {
+    const mapPeriod: Record<IBudget['period'], string> = {
+        'weekly': 'Неделя',
+        'monthly': 'Месяц',
+        'yearly': 'Год'
     }
+    return mapPeriod[period]
 }
 
 const onBudgetCreated = async () => {
@@ -145,16 +154,12 @@ const onBudgetCreated = async () => {
         if (newBudget.value) {
             await createBudget(newBudget.value)
             isCreateBudget.value = false
-            newBudget.value = {} as IBudgetCreate
+            newBudget.value = emptyBudget()
             fetchBudgets()
         }
     } catch (error) {
         console.error('Error creating budget:', error)
     }
-}
-
-const onUpdateCreateBudget = (budget: IBudgetCreate) => {
-    newBudget.value = { ...budget }
 }
 
 const onBudgetUpdated = (budget: IBudget) => {

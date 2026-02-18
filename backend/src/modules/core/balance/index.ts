@@ -1,38 +1,20 @@
 import { Hono } from 'hono'
 import { logger } from 'hono/logger'
-import { checkToken, convertArrayToObject, getUserID } from '../../utils'
+import { convertArrayToObject } from '../../utils'
 import { bearerAuth } from 'hono/bearer-auth'
 import dbClientInstance from '../../infrastructure/db'
-import { HTTPException } from 'hono/http-exception'
-
-interface IBalance {
-    id: number
-    balanceDate: string
-    balanceAmount: number
-    userId: number
-}
-
-const BalanceKeys = ['id', 'balanceDate', 'balanceAmount', 'userId']
+import { bearerAuthConfig, getAuthUserId } from '../../middleware'
+import { toHttpError } from '../../utils/errorHandler'
+import { IBalance, BalanceKeys } from './types'
 
 const balance = new Hono()
-
 balance.use(logger())
 
 // Получение текущего баланса пользователя
-balance.get('/current', bearerAuth({
-    verifyToken: async (token, c) => {
-        return await checkToken(c, token)
-    },
-}), async (c) => {
-    const decodePayload = await c.get('jwtPayload')
-    const dbClient = await dbClientInstance()
-
-    if (!decodePayload) {
-        throw new HTTPException(401, { message: 'No token provided' })
-    }
-
-    try {
-        const userID = await getUserID(decodePayload.username)
+balance.get('/current', bearerAuth(bearerAuthConfig), async (c) => {
+  try {
+    const userID = await getAuthUserId(c)
+    const dbClient = dbClientInstance()
         
         // Получаем текущий месяц
         const currentMonth = new Date()
@@ -78,34 +60,17 @@ balance.get('/current', bearerAuth({
 
         const balance = convertArrayToObject<IBalance>(Object.values(balanceResult[0]), BalanceKeys)
 
-        return c.json({
-            balance
-        })
-    } catch (e) {
-        console.error(e);
-        if (e instanceof Error) {
-            throw new HTTPException(500, { message: e.message })
-        } else {
-            throw new HTTPException(500, { message: 'Internal server error' })
-        }
-    }
+    return c.json({ balance })
+  } catch (e) {
+    throw toHttpError(e)
+  }
 })
 
 // Получение истории баланса пользователя
-balance.get('/history', bearerAuth({
-    verifyToken: async (token, c) => {
-        return await checkToken(c, token)
-    },
-}), async (c) => {
-    const decodePayload = await c.get('jwtPayload')
-    const dbClient = await dbClientInstance()
-
-    if (!decodePayload) {
-        throw new HTTPException(401, { message: 'No token provided' })
-    }
-
-    try {
-        const userID = await getUserID(decodePayload.username)
+balance.get('/history', bearerAuth(bearerAuthConfig), async (c) => {
+  try {
+    const userID = await getAuthUserId(c)
+    const dbClient = dbClientInstance()
         const limit = Number.parseInt(c.req.query('limit') || '12') // По умолчанию 12 месяцев
         
         const balanceHistoryResult = await dbClient.request<Array<IBalance>>(`
@@ -126,35 +91,18 @@ balance.get('/history', bearerAuth({
             return convertArrayToObject<IBalance>(Object.values(row), BalanceKeys)
         }) as unknown as IBalance[]
 
-        return c.json({
-            balanceHistory
-        })
-    } catch (e) {
-        console.error(e);
-        if (e instanceof Error) {
-            throw new HTTPException(500, { message: e.message })
-        } else {
-            throw new HTTPException(500, { message: 'Internal server error' })
-        }
-    }
+    return c.json({ balanceHistory })
+  } catch (e) {
+    throw toHttpError(e)
+  }
 })
 
 // Получение баланса за конкретный месяц
-balance.get('/month/:year/:month', bearerAuth({
-    verifyToken: async (token, c) => {
-        return await checkToken(c, token)
-    },
-}), async (c) => {
-    const { year, month } = c.req.param()
-    const decodePayload = await c.get('jwtPayload')
-    const dbClient = await dbClientInstance()
-
-    if (!decodePayload) {
-        throw new HTTPException(401, { message: 'No token provided' })
-    }
-
-    try {
-        const userID = await getUserID(decodePayload.username)
+balance.get('/month/:year/:month', bearerAuth(bearerAuthConfig), async (c) => {
+  const { year, month } = c.req.param()
+  try {
+    const userID = await getAuthUserId(c)
+    const dbClient = dbClientInstance()
         const targetDate = `${year}-${month.padStart(2, '0')}-01`
         
         const balanceResult = await dbClient.request<Array<IBalance>>(`
@@ -198,17 +146,10 @@ balance.get('/month/:year/:month', bearerAuth({
 
         const balance = convertArrayToObject<IBalance>(Object.values(balanceResult[0]), BalanceKeys)
 
-        return c.json({
-            balance
-        })
-    } catch (e) {
-        console.error(e);
-        if (e instanceof Error) {
-            throw new HTTPException(500, { message: e.message })
-        } else {
-            throw new HTTPException(500, { message: 'Internal server error' })
-        }
-    }
+    return c.json({ balance })
+  } catch (e) {
+    throw toHttpError(e)
+  }
 })
 
 export default balance 

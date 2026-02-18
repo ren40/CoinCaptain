@@ -1,5 +1,5 @@
 <template>
-    <tr class="simple__table--row" @click="openTransaction(transation.id)">
+    <tr class="simple__table--row">
         <td>{{ transation.description }}</td>
         <td>{{ getAmount(transation.amount ?? 0) }}</td>
         <td>{{ getParseDate(transation.date) }}</td>
@@ -12,10 +12,8 @@
 <script lang="ts" setup>
 import type { ITransactions } from '@/entities/transactions'
 import { useCategoryStore } from '@/entities'
-import { useRouter } from 'vue-router'
 
 const { getCategoryById } = useCategoryStore()
-const router = useRouter()
 
 const props = defineProps<{
     transation: ITransactions
@@ -41,9 +39,5 @@ const getAmount = (amount: number): string => {
     } else {
         return amount < 0 ? `${amount}` : `-${amount}`;
     }
-}
-
-const openTransaction = (id: number) => {
-    router.push(`/transactions/${id}`)
 }
 </script>

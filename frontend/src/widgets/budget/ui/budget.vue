@@ -2,6 +2,7 @@
   <div class="budget-progress" v-if="activeBudgetStats">
     <div class="budget-info">
       <span>Бюджет: {{ formatCurrency(activeBudgetStats.budgetAmount) }}</span>
+      <span v-if="activeBudgetStats.startBalance != null">Баланс на начало: {{ formatCurrency(activeBudgetStats.startBalance) }}</span>
       <span>Осталось: {{ formatCurrency(activeBudgetStats.remainingAmount) }}</span>
     </div>
     <div class="progress-bar">
@@ -31,7 +32,7 @@
                     <h2>Создать новый бюджет</h2>
                 </template>
                 <template #main>
-                    <budget-create-form @created="onBudgetCreated" />
+                    <budget-create-form v-model="newBudget as IBudgetCreate" />
                 </template>
                 <template #footer>
                     <div class="dialog-form__footer">
@@ -75,15 +76,14 @@ const activeBudgetStats = computed(() => {
   return budgetStats.value;
 });
 
-const newBudget = ref({} as IBudgetCreate)
+const newBudget = ref<IBudgetCreate>()
 
 const onBudgetCreated = async () => {
     try {
         if (newBudget.value) {
-            await createBudget(newBudget.value)
-            isCreateBudget.value = false
-            newBudget.value = {} as IBudgetCreate
-            fetchBudgets()
+          await createBudget(newBudget.value)
+          isCreateBudget.value = false
+          fetchBudgets()
         }
     } catch (error) {
         console.error('Error creating budget:', error)

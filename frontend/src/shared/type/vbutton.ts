@@ -14,6 +14,7 @@ export interface IVariants {
 export interface IDefaultPropsButton extends ISize, IVariants {
     prependIcon?: string,
     appendIcon?: string,
+    icon?: boolean,
     loading?: boolean,
     disabled?: boolean,
     type?: 'button' | 'submit' | 'reset',

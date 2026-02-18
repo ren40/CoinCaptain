@@ -79,23 +79,6 @@
                     </option>
                 </select>
             </div>
-            
-            <div class="form__actions">
-                <button 
-                    type="button" 
-                    class="form__btn form__btn--danger" 
-                    @click="handleCancel"
-                >
-                    Отмена
-                </button>
-                <button 
-                    type="submit" 
-                    class="form__btn form__btn--success" 
-                    @click="handleSubmit"
-                >
-                    Сохранить
-                </button>
-            </div>
         </form>
     </section>
 </template>
@@ -113,8 +96,6 @@ const props = defineProps<{
 
 const emits = defineEmits<{
     'update': [value: ITransactions];
-    'cancel': [];
-    'submit': [value: ITransactions];
 }>();
 
 const editItem = ref<ITransactions>({
@@ -128,7 +109,6 @@ const getCategoriesFromArray = computed(() => {
 
 onMounted(() => {
     if (getCategoriesFromArray.value.length === 0) {
-        console.log('Категорий нет');
         useCategoryStore().fetchAllCategories();
     }
 });
@@ -141,14 +121,6 @@ watch(editItem, () => {
     
     emits('update', editItem.value);
 }, { deep: true });
-
-const handleSubmit = () => {
-    emits('submit', editItem.value);
-};
-
-const handleCancel = () => {
-    emits('cancel');
-};
 </script>
 
 <style scoped>

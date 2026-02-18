@@ -4,7 +4,7 @@
             <div class="form__group">
                 <label for="amount">Сумма бюджета:</label>
                 <input 
-                    v-model.number="newBudget.amount" 
+                    v-model.number="modelValue.amount" 
                     class="form__input" 
                     type="number" 
                     id="amount" 
@@ -14,11 +14,24 @@
                     required 
                 />
             </div>
+
+            <div class="form__group">
+                <label for="startBalance">Баланс на начало месяца:</label>
+                <input 
+                    v-model.number="modelValue.startBalance" 
+                    class="form__input" 
+                    type="number" 
+                    id="startBalance" 
+                    name="startBalance" 
+                    min="0" 
+                    step="0.01"
+                />
+            </div>
             
             <div class="form__group">
                 <label for="period">Период:</label>
                 <select 
-                    v-model="newBudget.period" 
+                    v-model="modelValue.period" 
                     class="form__select" 
                     id="period" 
                     name="period"
@@ -34,7 +47,7 @@
             <div class="form__group">
                 <label for="startDate">Дата начала:</label>
                 <input 
-                    v-model="newBudget.startDate" 
+                    v-model="modelValue.startDate" 
                     class="form__input" 
                     type="date" 
                     id="startDate" 
@@ -46,7 +59,7 @@
             <div class="form__group">
                 <label for="endDate">Дата окончания:</label>
                 <input 
-                    v-model="newBudget.endDate" 
+                    v-model="modelValue.endDate" 
                     class="form__input" 
                     type="date" 
                     id="endDate" 
@@ -58,7 +71,7 @@
             <div class="form__group">
                 <label for="isActive">Активный бюджет:</label>
                 <input 
-                    v-model="newBudget.isActive" 
+                    v-model="modelValue.isActive" 
                     class="form__input" 
                     type="checkbox" 
                     id="isActive" 
@@ -70,33 +83,25 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, watch } from 'vue'
+import { onMounted, watch } from 'vue'
 import type { IBudgetCreate } from '@/entities'
 
-const props = defineProps<{
-    budget?: IBudgetCreate
-}>()
-
-const newBudget = ref<IBudgetCreate>(props.budget || {
+const modelValue = defineModel<IBudgetCreate>({ required: true, default: {
     amount: 0,
-    period: 'monthly',
-    startDate: new Date().toISOString().split('T')[0],
+    period: '',
+    startDate: '',
     endDate: '',
-    isActive: true,
-})
-
-const emit = defineEmits<{
-    'update': [value: IBudgetCreate]
-}>()
-
+    isActive: false,
+    startBalance: 0
+} })
 // Автоматически устанавливаем дату окончания при выборе периода
 const updateEndDate = () => {
-    if (!newBudget.value.startDate || !newBudget.value.period) return
-    
-    const startDate = new Date(newBudget.value.startDate)
+    if (!modelValue.value.startDate || !modelValue.value.period) return
+    console.log('updateEndDate')
+    const startDate = new Date(modelValue.value.startDate)
     let endDate = new Date(startDate)
     
-    switch (newBudget.value.period) {
+    switch (modelValue.value.period) {
         case 'weekly':
             endDate.setDate(startDate.getDate() + 6)
             break
@@ -110,19 +115,18 @@ const updateEndDate = () => {
             break
     }
     
-    newBudget.value.endDate = endDate.toISOString().split('T')[0]
+    modelValue.value.endDate = endDate.toISOString().split('T')[0]
 }
 
-watch(() => newBudget.value.period, () => {
-    updateEndDate()
-}, { deep: true })
+watch(
+    [() => modelValue.value.startDate, () => modelValue.value.period],
+    () => {
+        updateEndDate()
+    },
+    { immediate: true, deep: true }
+)
 
-watch(() => newBudget.value.startDate, () => {
-    updateEndDate()
-}, { deep: true })
-
-watch(newBudget, () => {
-    emit('update', newBudget.value)
-}, { deep: true })
-
+onMounted(() => {
+    modelValue.value.startDate = new Date().toISOString().split('T')[0]
+})
 </script>

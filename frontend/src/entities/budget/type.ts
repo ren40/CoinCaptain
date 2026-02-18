@@ -6,6 +6,7 @@ export interface IBudget {
     startDate: string;
     endDate: string;
     isActive: boolean;
+    startBalance: number;
     createdAt: string;
     updatedAt: string;
 }
@@ -22,4 +23,5 @@ export interface IBudgetStats {
     period: 'weekly' | 'monthly' | 'yearly';
     startDate: string;
     endDate: string;
+    startBalance: number;
 }

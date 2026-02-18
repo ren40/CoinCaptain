@@ -14,6 +14,19 @@
                     required 
                 />
             </div>
+
+            <div class="form__group">
+                <label for="startBalance">Баланс на начало месяца:</label>
+                <input 
+                    v-model.number="editBudget.startBalance" 
+                    class="form__input" 
+                    type="number" 
+                    id="startBalance" 
+                    name="startBalance" 
+                    min="0" 
+                    step="0.01"
+                />
+            </div>
             
             <div class="form__group">
                 <label for="period">Период:</label>
@@ -80,7 +93,10 @@ const emit = defineEmits<{
     'update': [value: IBudget],
 }>()
 
-const editBudget = ref({...props.budget})
+const editBudget = ref({
+    ...props.budget,
+    startBalance: props.budget.startBalance ?? 0
+})
 const startDateInput = ref(new Date(editBudget.value.startDate).toISOString().split('T')[0])
 const endDateInput = ref(new Date(editBudget.value.endDate).toISOString().split('T')[0])
 // Автоматически устанавливаем дату окончания при изменении периода или даты начала

@@ -53,6 +53,7 @@ const buttonClasses = computed(() => ({
     'vbutton--rounded': props.rounded,
     'vbutton--outline': props.outline,
     'vbutton--text': props.text,
+    'vbutton--icon': props.icon,
 }))
 
 // Следим за изменением пропса loading
@@ -132,7 +133,14 @@ const buttonAttrs = computed(() => restAttrs)
     font-weight: 400;
     transition: all 0.2s ease;
     position: relative;
-    min-width: 80px;
+    min-width: 0.5 rem;
+}
+
+.vbutton--icon {
+    padding: 0.5rem;
+    min-width: 32px;
+    width: 32px;
+    height: 32px;
 }
 
 .vbutton:hover:not(:disabled) {
