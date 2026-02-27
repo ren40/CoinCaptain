@@ -10,7 +10,7 @@
     </tr>
 </template>
 <script lang="ts" setup>
-import type { ITransactions } from '@/entities/transactions';
+import type { ITransactions } from '@/entities/transactions'
 import { useCategoryStore } from '@/entities'
 
 const { getCategoryById } = useCategoryStore()
@@ -40,5 +40,4 @@ const getAmount = (amount: number): string => {
         return amount < 0 ? `${amount}` : `-${amount}`;
     }
 }
-
 </script>

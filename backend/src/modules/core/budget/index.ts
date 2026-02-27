@@ -1,17 +1,16 @@
 import { Hono } from 'hono'
 import { logger } from 'hono/logger'
-import { checkToken, convertArrayToObject, getUserID } from '../../utils'
+import { convertArrayToObject } from '../../utils'
 import { bearerAuth } from 'hono/bearer-auth'
 import { zValidator } from '@hono/zod-validator'
 import dbClientInstance from '../../infrastructure/db'
-
 import { z } from 'zod'
 import { HTTPException } from 'hono/http-exception'
-
+import { bearerAuthConfig, getAuthUserId } from '../../middleware'
+import { toHttpError } from '../../utils/errorHandler'
 import { IBudget, IBudgetScheme, IBudgetUpdateScheme, IBudgetKeys, IBudgetStats } from './types'
 
 const budget = new Hono()
-
 budget.use(logger())
 
 const schemeNewBudget = z.object({
@@ -24,10 +23,11 @@ const schemeNewBudget = z.object({
         message: 'End date must be a valid date string',
     }),
     isActive: z.boolean().optional().default(true),
+    startBalance: z.number().min(0).optional().default(0),
 })
 
 const schemeUpdateBudget = z.object({
-    amount: z.number().positive({ message: 'Amount must be positive' }).optional(),
+    amount: z.any().optional(),
     period: z.enum(['weekly', 'monthly', 'yearly'], { message: 'Period must be weekly, monthly, or yearly' }).optional(),
     startDate: z.string().refine((date) => !isNaN(Date.parse(date)), {
         message: 'Start date must be a valid date string',
@@ -36,35 +36,25 @@ const schemeUpdateBudget = z.object({
         message: 'End date must be a valid date string',
     }).optional(),
     isActive: z.boolean().optional(),
+    startBalance: z.number().min(0).optional(),
 })
 
 // Создание нового бюджета
-budget.post('/', zValidator('json', schemeNewBudget), bearerAuth({
-    verifyToken: async (token, c) => {
-        return await checkToken(c, token)
-    },
-}), async (c) => {
+budget.post('/', zValidator('json', schemeNewBudget), bearerAuth(bearerAuthConfig), async (c) => {
+  try {
     const newBudget: IBudgetScheme = await c.req.json()
-    const decodePayload = await c.get('jwtPayload')
-
-    if (!decodePayload) {
-        throw new HTTPException(401, { message: 'No token provided' })
-    }
-
     if (JSON.stringify(newBudget) === '{}') {
-        throw new HTTPException(400, { message: 'Invalid budget data' })
+      throw new HTTPException(400, { message: 'Invalid budget data' })
     }
-
-    const dbClient = await dbClientInstance()
-    const userID = await getUserID(decodePayload.username)
-
-    try {
+    const userID = await getAuthUserId(c)
+    const dbClient = dbClientInstance()
         // Деактивируем все существующие бюджеты пользователя
         await dbClient.request(`UPDATE budgets SET is_active = false WHERE user_id = ${userID}`)
 
+        const startBalance = newBudget.startBalance ?? 0
         const result = await dbClient.request<Array<IBudget>>(`
-            INSERT INTO budgets (user_id, amount, period, start_date, end_date, is_active) 
-            VALUES (${userID}, ${newBudget.amount}, '${newBudget.period}', '${newBudget.startDate}', '${newBudget.endDate}', ${newBudget.isActive}) 
+            INSERT INTO budgets (user_id, amount, period, start_date, end_date, is_active, start_balance) 
+            VALUES (${userID}, ${newBudget.amount}, '${newBudget.period}', '${newBudget.startDate}', '${newBudget.endDate}', ${newBudget.isActive}, ${startBalance}) 
             RETURNING *
         `)
 
@@ -72,46 +62,33 @@ budget.post('/', zValidator('json', schemeNewBudget), bearerAuth({
             throw new HTTPException(500, { message: 'Failed to create budget' })
         }
 
+        const row = result[0] as any[]
         const createdBudget: IBudget = {
-            id: (result[0] as any[])[0],
-            userId: (result[0] as any[])[1],
-            amount: Number((result[0] as any[])[2]),
-            period: (result[0] as any[])[3],
-            startDate: (result[0] as any[])[4],
-            endDate: (result[0] as any[])[5],
-            isActive: (result[0] as any[])[6],
-            createdAt: (result[0] as any[])[7],
-            updatedAt: (result[0] as any[])[8]
+            id: row[0],
+            userId: row[1],
+            amount: Number(row[2]),
+            period: row[3],
+            startDate: row[4],
+            endDate: row[5],
+            isActive: row[6],
+            startBalance: Number(row[9] ?? 0),
+            createdAt: row[7],
+            updatedAt: row[8]
         }
 
-        return c.json({ ...createdBudget }, 201)
-    } catch (e) {
-        console.error(e);
-        if (e instanceof Error) {
-            throw new HTTPException(500, { message: e.message })
-        } else {
-            throw new HTTPException(500, { message: 'Internal server error' })
-        }
-    }
+    return c.json({ ...createdBudget }, 201)
+  } catch (e) {
+    throw toHttpError(e)
+  }
 })
 
 // Получение всех бюджетов пользователя
-budget.get('/', bearerAuth({
-    verifyToken: async (token, c) => {
-        return await checkToken(c, token)
-    },
-}), async (c) => {
-    const decodePayload = await c.get('jwtPayload')
-    const dbClient = await dbClientInstance()
-
-    if (!decodePayload) {
-        throw new HTTPException(401, { message: 'No token provided' })
-    }
-
-    try {
-        const userID = await getUserID(decodePayload.username)
+budget.get('/', bearerAuth(bearerAuthConfig), async (c) => {
+  try {
+    const userID = await getAuthUserId(c)
+    const dbClient = dbClientInstance()
         const rowsBudgets = await dbClient.request<Array<IBudget>>(`
-            SELECT id, user_id, amount, period, start_date, end_date, is_active, created_at, updated_at 
+            SELECT id, user_id, amount, period, start_date, end_date, is_active, start_balance, created_at, updated_at 
             FROM budgets 
             WHERE user_id = ${userID}
             ORDER BY created_at DESC
@@ -128,36 +105,19 @@ budget.get('/', bearerAuth({
             return budget
         }) as unknown as IBudget[]
 
-        return c.json({
-            budgets
-        })
-    } catch (e) {
-        console.error(e);
-        if (e instanceof Error) {
-            throw new HTTPException(500, { message: e.message })
-        } else {
-            throw new HTTPException(500, { message: 'Internal server error' })
-        }
-    }
+    return c.json({ budgets })
+  } catch (e) {
+    throw toHttpError(e)
+  }
 })
 
 // Получение активного бюджета пользователя
-budget.get('/active', bearerAuth({
-    verifyToken: async (token, c) => {
-        return await checkToken(c, token)
-    },
-}), async (c) => {
-    const decodePayload = await c.get('jwtPayload')
-    const dbClient = await dbClientInstance()
-
-    if (!decodePayload) {
-        throw new HTTPException(401, { message: 'No token provided' })
-    }
-
-    try {
-        const userID = await getUserID(decodePayload.username)
+budget.get('/active', bearerAuth(bearerAuthConfig), async (c) => {
+  try {
+    const userID = await getAuthUserId(c)
+    const dbClient = dbClientInstance()
         const rowsBudgets = await dbClient.request<Array<IBudget>>(`
-            SELECT id, user_id, amount, period, start_date, end_date, is_active, created_at, updated_at 
+            SELECT id, user_id, amount, period, start_date, end_date, is_active, start_balance, created_at, updated_at 
             FROM budgets 
             WHERE user_id = ${userID} AND is_active = true
             ORDER BY created_at DESC
@@ -186,24 +146,13 @@ budget.get('/active', bearerAuth({
 })
 
 // Получение конкретного бюджета по ID
-budget.get('/:id', bearerAuth({
-    verifyToken: async (token, c) => {
-        return await checkToken(c, token)
-    },
-}), async (c) => {
-    const { id } = c.req.param()
-    const decodePayload = await c.get('jwtPayload')
-
-    if (!decodePayload) {
-        throw new HTTPException(401, { message: 'No token provided' })
-    }
-
-    try {
-        const userID = await getUserID(decodePayload.username)
-        const dbClient = await dbClientInstance()
-
-        const rowsBudgets = await dbClient.request<Array<IBudget>>(`
-            SELECT id, user_id, amount, period, start_date, end_date, is_active, created_at, updated_at 
+budget.get('/:id', bearerAuth(bearerAuthConfig), async (c) => {
+  const { id } = c.req.param()
+  try {
+    const userID = await getAuthUserId(c)
+    const dbClient = dbClientInstance()
+    const rowsBudgets = await dbClient.request<Array<IBudget>>(`
+            SELECT id, user_id, amount, period, start_date, end_date, is_active, start_balance, created_at, updated_at 
             FROM budgets 
             WHERE user_id = ${userID} AND id = ${id}
         `) as IBudget[][]
@@ -216,43 +165,20 @@ budget.get('/:id', bearerAuth({
 
         const budget = convertArrayToObject<IBudget>(Object.values(rowsBudgets[0]), IBudgetKeys)
 
-        return c.json({
-            budget
-        })
-    } catch (e) {
-        console.error(e);
-        if (e instanceof Error) {
-            throw new HTTPException(500, { message: e.message })
-        } else {
-            throw new HTTPException(500, { message: 'Internal server error' })
-        }
-    }
+    return c.json({ budget })
+  } catch (e) {
+    throw toHttpError(e)
+  }
 })
 
 // Обновление бюджета
-budget.put('/:id', zValidator('json', schemeUpdateBudget), bearerAuth({
-    verifyToken: async (token, c) => {
-        return await checkToken(c, token)
-    },
-}), async (c) => {
-    const decodePayload = await c.get('jwtPayload')
-    const budgetId = c.req.param('id')
+budget.put('/:id', zValidator('json', schemeUpdateBudget), bearerAuth(bearerAuthConfig), async (c) => {
+  const budgetId = c.req.param('id')
+  try {
     const updateBudget = await c.req.json()
-
-    if (!decodePayload) {
-        throw new HTTPException(401, { message: 'No token provided' })
-    }
-
-    if (!budgetId) {
-        throw new HTTPException(400, { message: 'Budget ID is required' })
-    }
-
-    if (JSON.stringify(updateBudget) === '{}') {
-        throw new HTTPException(400, { message: 'Invalid budget data' })
-    }
-
-    try {
-        const userID = await getUserID(decodePayload.username)
+    if (!budgetId) throw new HTTPException(400, { message: 'Budget ID is required' })
+    if (JSON.stringify(updateBudget) === '{}') throw new HTTPException(400, { message: 'Invalid budget data' })
+    const userID = await getAuthUserId(c)
         const dbClient = await dbClientInstance()
 
         // Проверяем, что бюджет принадлежит пользователю
@@ -268,7 +194,7 @@ budget.put('/:id', zValidator('json', schemeUpdateBudget), bearerAuth({
         const updateFields = []
 
         if (updateBudget.amount !== undefined) {
-            updateFields.push(`amount = ${updateBudget.amount}`)
+            updateFields.push(`amount = ${parseInt(updateBudget.amount)}`)
         }
         if (updateBudget.period !== undefined) {
             updateFields.push(`period = '${updateBudget.period}'`)
@@ -282,8 +208,12 @@ budget.put('/:id', zValidator('json', schemeUpdateBudget), bearerAuth({
         if (updateBudget.isActive !== undefined) {
             updateFields.push(`is_active = ${updateBudget.isActive}`)
         }
+        if (updateBudget.startBalance !== undefined) {
+            updateFields.push(`start_balance = ${Number(updateBudget.startBalance)}`)
+        }
 
         updateFields.push('updated_at = CURRENT_TIMESTAMP')
+        console.log(updateBudget)
 
         const result = await dbClient.request<Array<IBudget>>(`
             UPDATE budgets 
@@ -296,48 +226,32 @@ budget.put('/:id', zValidator('json', schemeUpdateBudget), bearerAuth({
             throw new HTTPException(500, { message: 'Failed to update budget' })
         }
 
+        const row = result[0] as any[]
         const updatedBudget: IBudget = {
-            id: (result[0] as any[])[0],
-            userId: (result[0] as any[])[1],
-            amount: Number((result[0] as any[])[2]),
-            period: (result[0] as any[])[3],
-            startDate: (result[0] as any[])[4],
-            endDate: (result[0] as any[])[5],
-            isActive: (result[0] as any[])[6],
-            createdAt: (result[0] as any[])[7],
-            updatedAt: (result[0] as any[])[8]
+            id: row[0],
+            userId: row[1],
+            amount: Number(row[2]),
+            period: row[3],
+            startDate: row[4],
+            endDate: row[5],
+            isActive: row[6],
+            startBalance: Number(row[9] ?? 0),
+            createdAt: row[7],
+            updatedAt: row[8]
         }
 
-        return c.json({ ...updatedBudget }, 200)
-    } catch (e) {
-        console.error(e);
-        if (e instanceof Error) {
-            throw new HTTPException(500, { message: e.message })
-        } else {
-            throw new HTTPException(500, { message: 'Internal server error' })
-        }
-    }
+    return c.json({ ...updatedBudget }, 200)
+  } catch (e) {
+    throw toHttpError(e)
+  }
 })
 
 // Удаление бюджета
-budget.delete('/:id', bearerAuth({
-    verifyToken: async (token, c) => {
-        return await checkToken(c, token)
-    },
-}), async (c) => {
-    const decodePayload = await c.get('jwtPayload')
-    const budgetId = c.req.param('id')
-
-    if (!decodePayload) {
-        throw new HTTPException(401, { message: 'No token provided' })
-    }
-
-    if (!budgetId) {
-        throw new HTTPException(400, { message: 'Budget ID is required' })
-    }
-
-    try {
-        const userID = await getUserID(decodePayload.username)
+budget.delete('/:id', bearerAuth(bearerAuthConfig), async (c) => {
+  const budgetId = c.req.param('id')
+  try {
+    if (!budgetId) throw new HTTPException(400, { message: 'Budget ID is required' })
+    const userID = await getAuthUserId(c)
         const dbClient = await dbClientInstance()
 
         // Проверяем, что бюджет принадлежит пользователю
@@ -351,38 +265,21 @@ budget.delete('/:id', bearerAuth({
 
         await dbClient.request(`DELETE FROM budgets WHERE user_id = ${userID} AND id = ${budgetId}`)
 
-        return c.json({ message: 'Budget deleted successfully' }, 200)
-    } catch (e) {
-        console.error(e);
-        if (e instanceof Error) {
-            throw new HTTPException(500, { message: e.message })
-        } else {
-            throw new HTTPException(500, { message: 'Internal server error' })
-        }
-    }
+    return c.json({ message: 'Budget deleted successfully' }, 200)
+  } catch (e) {
+    throw toHttpError(e)
+  }
 })
 
-
-
 // Получение статистики активного бюджета
-budget.get('/active/stats', bearerAuth({
-    verifyToken: async (token, c) => {
-        return await checkToken(c, token)
-    },
-}), async (c) => {
-    const decodePayload = await c.get('jwtPayload')
-
-    if (!decodePayload) {
-        throw new HTTPException(401, { message: 'No token provided' })
-    }
-
-    try {
-        const userID = await getUserID(decodePayload.username)
-        const dbClient = await dbClientInstance()
+budget.get('/active/stats', bearerAuth(bearerAuthConfig), async (c) => {
+  try {
+    const userID = await getAuthUserId(c)
+    const dbClient = dbClientInstance()
 
         // Получаем активный бюджет
         const budgetResult = await dbClient.request<Array<IBudget>>(`
-            SELECT id, user_id, amount, period, start_date, end_date, is_active, created_at, updated_at 
+            SELECT id, user_id, amount, period, start_date, end_date, is_active, start_balance, created_at, updated_at 
             FROM budgets 
             WHERE user_id = ${userID} AND is_active = true
             ORDER BY created_at DESC
@@ -396,6 +293,7 @@ budget.get('/active/stats', bearerAuth({
         }
 
         const budget = convertArrayToObject<IBudget>(Object.values(budgetResult[0]), IBudgetKeys) as unknown as IBudget
+        const startBalance = Number(budget.startBalance ?? 0)
         let startDate = new Date(budget.startDate)
         let endDate = new Date(budget.endDate)
         console.log(startDate.toISOString().split('T')[0])
@@ -410,8 +308,8 @@ budget.get('/active/stats', bearerAuth({
         `) as any[][]
 
         const spentAmount = Number(spentResult[0]?.[0] || 0)
-        const remainingAmount = Math.max(0, budget.amount - spentAmount)
-        const spentPercentage = budget.amount > 0 ? Math.min(100, (spentAmount / budget.amount) * 100) : 0
+        const remainingAmount = Math.max(0, startBalance - spentAmount)
+        const spentPercentage = startBalance > 0 ? Math.min(100, (spentAmount / startBalance) * 100) : 0
 
         const stats: IBudgetStats = {
             budgetAmount: budget.amount,
@@ -421,40 +319,25 @@ budget.get('/active/stats', bearerAuth({
             period: budget.period,
             startDate: budget.startDate,
             endDate: budget.endDate,
+            startBalance,
         }
 
-        return c.json({ stats })
-    } catch (e) {
-        console.error(e);
-        if (e instanceof Error) {
-            throw new HTTPException(500, { message: e.message })
-        } else {
-            throw new HTTPException(500, { message: 'Internal server error' })
-        }
-    }
+    return c.json({ stats })
+  } catch (e) {
+    throw toHttpError(e)
+  }
 })
 
-
 // Получение статистики бюджета
-budget.get('/:id/stats', bearerAuth({
-    verifyToken: async (token, c) => {
-        return await checkToken(c, token)
-    },
-}), async (c) => {
-    const { id } = c.req.param()
-    const decodePayload = await c.get('jwtPayload')
-
-    if (!decodePayload) {
-        throw new HTTPException(401, { message: 'No token provided' })
-    }
-
-    try {
-        const userID = await getUserID(decodePayload.username)
-        const dbClient = await dbClientInstance()
+budget.get('/:id/stats', bearerAuth(bearerAuthConfig), async (c) => {
+  const { id } = c.req.param()
+  try {
+    const userID = await getAuthUserId(c)
+    const dbClient = dbClientInstance()
 
         // Получаем бюджет
         const budgetResult = await dbClient.request<Array<IBudget>>(`
-            SELECT id, user_id, amount, period, start_date, end_date, is_active, created_at, updated_at 
+            SELECT id, user_id, amount, period, start_date, end_date, is_active, start_balance, created_at, updated_at 
             FROM budgets 
             WHERE user_id = ${userID} AND id = ${id}
         `) as IBudget[][]
@@ -464,6 +347,7 @@ budget.get('/:id/stats', bearerAuth({
         }
 
         const budget = convertArrayToObject<IBudget>(Object.values(budgetResult[0]), IBudgetKeys) as unknown as IBudget
+        const startBalance = Number(budget.startBalance ?? 0)
 
         // Получаем сумму расходов за период бюджета
         const spentResult = await dbClient.request<Array<{ total: number }>>(`
@@ -476,8 +360,8 @@ budget.get('/:id/stats', bearerAuth({
         `) as any[][]
 
         const spentAmount = Number(spentResult[0]?.[0] || 0)
-        const remainingAmount = Math.max(0, budget.amount - spentAmount)
-        const spentPercentage = budget.amount > 0 ? Math.min(100, (spentAmount / budget.amount) * 100) : 0
+        const remainingAmount = Math.max(0, startBalance - spentAmount)
+        const spentPercentage = startBalance > 0 ? Math.min(100, (spentAmount / startBalance) * 100) : 0
 
         const stats: IBudgetStats = {
             budgetAmount: budget.amount,
@@ -487,17 +371,13 @@ budget.get('/:id/stats', bearerAuth({
             period: budget.period,
             startDate: budget.startDate,
             endDate: budget.endDate,
+            startBalance,
         }
 
-        return c.json({ stats })
-    } catch (e) {
-        console.error(e);
-        if (e instanceof Error) {
-            throw new HTTPException(500, { message: e.message })
-        } else {
-            throw new HTTPException(500, { message: 'Internal server error' })
-        }
-    }
+    return c.json({ stats })
+  } catch (e) {
+    throw toHttpError(e)
+  }
 })
 
 export default budget

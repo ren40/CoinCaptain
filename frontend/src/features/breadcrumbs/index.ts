@@ -1,1 +1,1 @@
-export { default as BreadCrumbs } from './BreadCrumbs.vue'
+export { default as BreadCrumbs } from './breadCrumbs.vue'

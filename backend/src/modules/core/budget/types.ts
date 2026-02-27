@@ -6,6 +6,7 @@ export interface IBudget {
     startDate: string,
     endDate: string,
     isActive: boolean,
+    startBalance: number,
     createdAt: string,
     updatedAt: string,
 }
@@ -14,7 +15,7 @@ export type IBudgetScheme = Omit<IBudget, 'id' | 'userId' | 'createdAt' | 'updat
 
 export type IBudgetUpdateScheme = Partial<IBudgetScheme>
 
-export const IBudgetKeys = ['id', 'userId', 'amount', 'period', 'startDate', 'endDate', 'isActive', 'createdAt', 'updatedAt']
+export const IBudgetKeys = ['id', 'userId', 'amount', 'period', 'startDate', 'endDate', 'isActive', 'startBalance', 'createdAt', 'updatedAt']
 
 export interface IBudgetStats {
     budgetAmount: number,
@@ -24,4 +25,5 @@ export interface IBudgetStats {
     period: 'weekly' | 'monthly' | 'yearly',
     startDate: string,
     endDate: string,
+    startBalance: number,
 } 

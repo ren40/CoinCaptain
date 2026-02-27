@@ -1,17 +1,10 @@
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 import { User, Auth, Transations, Budget } from './modules/core'
+import Balance from './modules/core/balance'
 import dbClientInstance from './modules/infrastructure/db'
 
 const app = new Hono().basePath('/api')
-// app.use('api/*', cors({
-//   origin: 'http://localhost:5173', // Allow requests from your frontend
-//   allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-//   allowHeaders: ['X-Custom-Header', 'Upgrade-Insecure-Requests'],
-//   exposeHeaders: ['Content-Length', 'X-Kuma-Revision'],
-//   maxAge: 600,
-//   credentials: true,
-// }))
 const MAX_RETRIES = Number.parseInt(process.env.MAX_RETRIES || '') || 5
 const RETRY_INTERVAL_MS = Number.parseInt(process.env.RETRY_INTERVAL_MS || '') || 5000
 
@@ -43,6 +36,7 @@ app.route('/login', Auth)
 app.route('/user', User)
 app.route('/transations', Transations)
 app.route('/budget', Budget)
+app.route('/balance', Balance)
 
 app.get('/', (c) => {
   return c.text('Hello Hono!')

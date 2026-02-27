@@ -2,6 +2,7 @@ import type { RouteRecordRaw } from 'vue-router'
 import { useBudget } from '@/entities'
 import { dashboardRoute } from './dashboard'
 import { settingsRoute } from './settings'
+import { transactionsRoute } from './transactions'
 
 export const mainLayoutRoute: RouteRecordRaw = {
     path: '/',
@@ -11,10 +12,14 @@ export const mainLayoutRoute: RouteRecordRaw = {
             name: 'Домашняя страница',
         }
     },
+    redirect: {
+        name: "DashboardPage"
+    },
     component: () => import('@/pages/layout/ui/layout.vue'),
     children: [
         dashboardRoute,
         settingsRoute,
+        transactionsRoute,
         {
             path: '/budget',
             name: 'BudgetPage',

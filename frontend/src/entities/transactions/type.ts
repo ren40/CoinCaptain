@@ -9,5 +9,4 @@ export interface ITransactions {
     createdAt: string,
 }
 
-
 export type ITransactionCreate = Omit<ITransactions, 'id' | 'createdAt' | 'balance'>;

@@ -1,7 +1,7 @@
 <template>
-    <button class="form__btn form__btn--danger transactions-delete-btn" @click="onShowDialog">
-        <span class="transactions-delete-btn__text">Удалить</span>
-    </button>
+    <v-button icon class="transactions-delete-btn" danger @click.stop="onShowDialog">
+        <trash-icon class="transactions-delete-btn__icon" />
+    </v-button >
     <v-dialog :isOpen="isOpenDialog" @close="isOpenDialog = false" :is-loading="false">
         <template #header>
             <h2>Удаление транзакции</h2>
@@ -21,7 +21,9 @@
 <script lang="ts" setup>
 import { useTransactions } from '@/entities'
 import { VDialog } from '@/shared'
+import { TrashIcon } from '@/shared/ui/icons'
 import { ref } from 'vue'
+import { VButton } from '@/shared/ui'
 
 const { deleteItem } = useTransactions()
 const isOpenDialog = ref(false)
@@ -43,3 +45,11 @@ const onDelete = async () => {
     }
 }
 </script>
+
+<style scoped>
+.transactions-delete-btn__icon {
+    display: block;
+    width: 16px;
+    height: 16px;
+}
+</style>

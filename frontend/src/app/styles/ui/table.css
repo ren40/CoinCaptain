@@ -2,7 +2,10 @@
   width: 100%;
   border-collapse: collapse;
   margin: 0 auto;
+  table-layout: fixed;
 }
+
+
 
 .simple__table--header {
   background-color: var(--black-tints-400);
@@ -93,5 +96,11 @@
   }
   to {
     transform: rotate(360deg);
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .simple__table--header {
+    display: flex;
   }
 }

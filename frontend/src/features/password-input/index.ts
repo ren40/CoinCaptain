@@ -1,0 +1,1 @@
+export { default as VPasswordInput } from './ui/v-password-input.vue'

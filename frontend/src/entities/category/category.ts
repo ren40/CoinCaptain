@@ -79,6 +79,7 @@ export const useCategoryStore = defineStore('category', () => {
             axiosInstance.delete(`/api/transations/category/${categoryId}`).then((response) => {
                 if (response.status === 200) {
                     console.log('Deleted category:', response.data)
+                    categories.value.delete(categoryId)
                 }
             })
         } catch (e) {

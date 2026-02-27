@@ -46,3 +46,32 @@
   width: 42rem;
   border-radius: 2rem;
 }
+
+.password-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-toggle {
+  position: absolute;
+  right: 12px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--white-tints-400);
+  transition: color 0.2s ease;
+}
+
+.password-toggle:hover {
+  color: var(--white);
+}
+
+.password-toggle svg {
+  width: 20px;
+  height: 20px;
+}

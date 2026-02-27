@@ -1,0 +1,1 @@
+export { default as ChartWidget } from './ui/chart-widget.vue'

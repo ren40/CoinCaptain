@@ -68,6 +68,7 @@ hr {
 #app {
   min-height: 100vh;
   background-color: var(--black-tints-500);
+  overflow: hidden;
 }
 
 .container {

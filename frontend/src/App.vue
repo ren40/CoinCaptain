@@ -1,4 +1,5 @@
 <template>
+  <toast-wrapper />
   <error-boundary :class="!isAuthenticated ? 'container': 'app_container'">
     <RouterView />
     <footer class="app_footer">
@@ -13,15 +14,15 @@ import { RouterView } from 'vue-router'
 import { useAuthStore } from '@/app'
 import { ErrorBoundary } from '@/shared'
 import { computed } from 'vue'
+import { ToastWrapper } from '@/widgets'
 const { isAuthenticated } = storeToRefs(useAuthStore())
-
 const getCurrentYear = computed(() => new Date().getFullYear())
-
 </script>
 
 <style>
 .app_container {
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
 }
 
 .logo {

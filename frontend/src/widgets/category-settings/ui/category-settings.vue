@@ -1,22 +1,44 @@
 <template>
     <div class="category-settings">
-        <ul class="category-settings__list">
-            <li v-if="categoriesList.length === 0" class="category-settings__item">
-                <p>Категорий нет</p>
-            </li>
-            <li v-for="category in categoriesList" :key="category.id" class="category-settings__item">
-                <div class="category-settings__item-content">
-                    <p>{{ category.name }}</p>
-                    <div class="category-settings__item-actions">
-                        <categories-delete-btn :id="category.id" />
-                        <button class="form__btn" @click="onOpenDialogEdit(category)">Изменить</button>
-                    </div>
-                </div>
-            </li>
-        </ul>
+        <table class="simple__table">
+            <thead>
+                <tr class="simple__table--header">
+                    <th v-for="header in headers" :key="header">{{ header }}</th>
+                </tr>
+            </thead>
+            <tbody>
+
+                <tr v-if="isLoading">
+                    <td :colspan="headers.length - 1" class="simple__table--loading">
+                        <div class="loading-container">
+                            <div class="loading-spinner"></div>
+                        </div>
+                    </td>
+                </tr>
+
+                <tr v-else-if="categoriesList.length === 0" class="empty">
+                    <td :colspan="headers.length - 1" class="simple__table--empty">
+                        <div class="empty-container">
+                            <p>Список пуст</p>
+                        </div>
+                    </td>
+                </tr>
+
+                <template v-for="(category) in categoriesList" :key="category.id">
+                    <tr class="simple__table--row">
+                        <td>{{ category.name }}</td>
+                        <td class="category-settings__item-actions">
+                            <categories-delete-btn :id="String(category.id)" />
+                            <v-button primary @click="onOpenDialogEdit(category)">Изменить</v-button>
+                        </td>
+                    </tr>
+                </template>
+            </tbody>
+        </table>
+
 
         <div class="category-settings__btn">
-            <button class="form__btn" @click="openDialog">Создать категорию</button>
+            <v-button primary @click="openDialog">Создать категорию</v-button>
         </div>
 
         <VDialog :isOpen="isOpenDialog" @close="isOpenDialog = false" :is-loading="isLoading">
@@ -28,10 +50,10 @@
             </template>
             <template #footer>
                 <div class="dialog-form__footer">
-                    <button class="form__btn dialog-form--btn dialog-form--btn__cancel"
-                        @click="isOpenDialog = false">Закрыть</button>
-                    <button class="form__btn dialog-form--btn " :disabled="!newCategory"
-                        @click="onCreateAndExit">Создать</button>
+                    <v-button
+                        @click="isOpenDialog = false">Закрыть</v-button>
+                    <v-button primary :disabled="!newCategory"
+                        @click="onCreateAndExit">Создать</v-button>
                 </div>
             </template>
         </VDialog>
@@ -44,10 +66,13 @@
                 <categories-edit-form :category="categoryEdit" @update="onUpdateCategory" />
             </template>
             <template #footer>
-                <button class="form__btn dialog-form--btn dialog-form--btn__cancel"
-                    @click="isOpenDialogEdit = false">Закрыть</button>
-                <button class="form__btn dialog-form--btn " :disabled="!newCategory"
-                    @click="onEditAndExit">Изменить</button>
+                <div class="dialog-form__footer">
+                    <v-button
+                        @click="isOpenDialogEdit = false">Закрыть</v-button>
+                    <v-button primary :disabled="!newCategory"
+                        @click="onEditAndExit">Изменить</v-button>
+                </div>
+
             </template>
         </VDialog>
     </div>
@@ -56,8 +81,8 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
 import { useCategoryStore, type ICategory, type ICategoryCreate } from '@/entities'
-import { VDialog } from '@/shared'
-import { onMounted, ref, computed } from 'vue'
+import { VDialog, VButton } from '@/shared'
+import { onMounted, ref, computed, watch } from 'vue'
 import { CategoriesCreateForm, CategoriesDeleteBtn, CategoriesEditForm } from '@/features'
 
 const { isLoading, categories } = storeToRefs(useCategoryStore())
@@ -68,6 +93,11 @@ const newCategory = ref<ICategoryCreate>({} as ICategoryCreate)
 
 const isOpenDialogEdit = ref(false)
 const categoryEdit = ref<ICategory>({} as ICategory)
+
+const headers = [
+    'Наименование',
+    'Действия'
+]
 
 const openDialog = () => {
     isOpenDialog.value = true
@@ -111,6 +141,12 @@ const onOpenDialogEdit = (category: ICategory) => {
     categoryEdit.value = { ...category }
     isOpenDialogEdit.value = true
 }
+
+watch(categories, () => {
+    if (categoriesList.value.length === 0) {
+        fetchAllCategories()
+    }
+})
 
 onMounted(() => {
     if (categories.value.size === 0) {

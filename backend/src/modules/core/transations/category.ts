@@ -1,15 +1,16 @@
 import { Hono } from 'hono'
 import { logger } from 'hono/logger'
-import { checkToken, convertArrayToObject, paginate, getUserID } from '../../utils'
+import { convertArrayToObject } from '../../utils'
 import { bearerAuth } from 'hono/bearer-auth'
 import { zValidator } from '@hono/zod-validator'
 import dbClientInstance from '../../infrastructure/db'
+import { bearerAuthConfig, getAuthUserId } from '../../middleware'
+import { toHttpError } from '../../utils/errorHandler'
 import { ICategory, ICategoryScheme, ICategoryKeys } from './types'
 import { z } from 'zod'
 import { HTTPException } from 'hono/http-exception'
 
 const category = new Hono()
-
 category.use(logger())
 
 const schemeCategory = z.object({
@@ -18,21 +19,11 @@ const schemeCategory = z.object({
 }) as z.ZodType<ICategoryScheme>;
 
 //POST
-category.post('/', zValidator('json', schemeCategory), bearerAuth({
-    verifyToken: async (token, c) => {
-        return await checkToken(c, token)
-    },
-}), async (c) => {
-    try {
-        const newCategory: ICategoryScheme = await c.req.json()
-        const decodePayload = await c.get('jwtPayload')
-        const dbClient = await dbClientInstance()
-
-        if (!decodePayload) {
-            throw new HTTPException(401, { message: 'No token provided' })
-        }
-
-        const userID = await getUserID(decodePayload.username)
+category.post('/', zValidator('json', schemeCategory), bearerAuth(bearerAuthConfig), async (c) => {
+  try {
+    const newCategory: ICategoryScheme = await c.req.json()
+    const userID = await getAuthUserId(c)
+    const dbClient = dbClientInstance()
 
         const result = await dbClient.request<Array<ICategory>>(`INSERT INTO categories (name, user_id) VALUES ('${newCategory.name}', '${userID}') RETURNING *;`)
 
@@ -44,73 +35,37 @@ category.post('/', zValidator('json', schemeCategory), bearerAuth({
             id: (result[0] as any[])[0],
             name: (result[0] as any[])[1],
         }
-        return c.json({ ...createdCategory }, 201)
-    } catch (e) {
-        console.error(e);
-        if (e instanceof Error) {
-            throw new HTTPException(500, { message: e.message })
-        } else {
-            throw new HTTPException(500, { message: 'Internal server error' })
-        }
-    }
+    return c.json({ ...createdCategory }, 201)
+  } catch (e) {
+    throw toHttpError(e)
+  }
 })
 
-
 //GET
-category.get('/', bearerAuth({
-    verifyToken: async (token, c) => {
-        return await checkToken(c, token)
-    },
-}), async (c) => {
-    const decodePayload = await c.get('jwtPayload')
-    const dbClient = await dbClientInstance()
-
-    if (!decodePayload) {
-        throw new HTTPException(401, { message: 'No token provided' })
-    }
-
-    try {
-        const userID = await getUserID(decodePayload.username)
+category.get('/', bearerAuth(bearerAuthConfig), async (c) => {
+  try {
+    const userID = await getAuthUserId(c)
+    const dbClient = dbClientInstance()
         const rowsCategories = await dbClient.request<Array<ICategory>>(`SELECT id, name FROM categories WHERE user_id = '${userID}';`)
         console.log(rowsCategories)
         if (rowsCategories.length === 0) {
             return c.json({ message: 'No categories found' }, 404)
         }
 
-        const categories = rowsCategories.map((category) => convertArrayToObject<ICategory>(Object.values(category), ICategoryKeys))
-        return c.json(categories, 200)
-    } catch (e) {
-        console.error(e);
-        if (e instanceof Error) {
-            throw new HTTPException(500, { message: e.message })
-        } else {
-            throw new HTTPException(500, { message: 'Internal server error' })
-        }
-    }
-
-
+    const categories = rowsCategories.map((cat) => convertArrayToObject<ICategory>(Object.values(cat), ICategoryKeys))
+    return c.json(categories, 200)
+  } catch (e) {
+    throw toHttpError(e)
+  }
 })
 
 //DELETE
-category.delete('/:id', bearerAuth({
-    verifyToken: async (token, c) => {
-        return await checkToken(c, token)
-    },
-}), async (c) => {
-    const decodePayload = await c.get('jwtPayload')
-    const dbClient = await dbClientInstance()
-    const categoryId = c.req.param('id')
-
-    if (!decodePayload) {
-        throw new HTTPException(401, { message: 'No token provided' })
-    }
-
-    if (!categoryId || isNaN(Number(categoryId))) {
-        throw new HTTPException(400, { message: 'Invalid category id' })
-    }
-
-    try {
-        const userID = await getUserID(decodePayload.username)
+category.delete('/:id', bearerAuth(bearerAuthConfig), async (c) => {
+  const categoryId = c.req.param('id')
+  if (!categoryId || isNaN(Number(categoryId))) throw new HTTPException(400, { message: 'Invalid category id' })
+  try {
+    const userID = await getAuthUserId(c)
+    const dbClient = dbClientInstance()
 
         // Проверяем, существует ли категория и принадлежит ли пользователю
         const checkResult = await dbClient.request<Array<ICategory>>(
@@ -125,49 +80,28 @@ category.delete('/:id', bearerAuth({
             `DELETE FROM categories WHERE id = '${categoryId}' AND user_id = '${userID}';`
         )
 
-        return c.json({ message: 'Category deleted successfully' }, 200)
-    } catch (e) {
-        console.error(e)
-        if (e instanceof Error) {
-            throw new HTTPException(500, { message: e.message })
-        } else {
-            throw new HTTPException(500, { message: 'Internal server error' })
-        }
-    }
+    return c.json({ message: 'Category deleted successfully' }, 200)
+  } catch (e) {
+    throw toHttpError(e)
+  }
 })
 
-
 //PUT
-category.put('/:id', bearerAuth({
-    verifyToken: async (token, c) => {
-        return await checkToken(c, token)
-    },
-}), async (c) => {
-    const decodePayload = await c.get('jwtPayload')
-    const dbClient = await dbClientInstance()
-    const categoryId = c.req.param('id')
-
-    if (!decodePayload) {
-        throw new HTTPException(401, { message: 'No token provided' })
-    }
-
-    if (!categoryId || isNaN(Number(categoryId))) {
-        throw new HTTPException(400, { message: 'Invalid category id' })
-    }
-
-    let body: Partial<ICategoryScheme>
-    try {
-        body = await c.req.json()
-    } catch (e) {
-        throw new HTTPException(400, { message: 'Invalid JSON body' })
-    }
-
-    if (!body.name || typeof body.name !== 'string' || body.name.trim() === '') {
-        throw new HTTPException(400, { message: 'Category name is required' })
-    }
-
-    try {
-        const userID = await getUserID(decodePayload.username)
+category.put('/:id', bearerAuth(bearerAuthConfig), async (c) => {
+  const categoryId = c.req.param('id')
+  if (!categoryId || isNaN(Number(categoryId))) throw new HTTPException(400, { message: 'Invalid category id' })
+  let body: Partial<ICategoryScheme>
+  try {
+    body = await c.req.json()
+  } catch {
+    throw new HTTPException(400, { message: 'Invalid JSON body' })
+  }
+  if (!body.name || typeof body.name !== 'string' || body.name.trim() === '') {
+    throw new HTTPException(400, { message: 'Category name is required' })
+  }
+  try {
+    const userID = await getAuthUserId(c)
+    const dbClient = dbClientInstance()
 
         // Проверяем, существует ли категория и принадлежит ли пользователю
         const checkResult = await dbClient.request<Array<ICategory>>(
@@ -197,16 +131,10 @@ category.put('/:id', bearerAuth({
             userId: (updatedResult[0] as any[])[2],
         }
 
-        return c.json({ ...updatedCategory }, 200)
-    } catch (e) {
-        console.error(e)
-        if (e instanceof Error) {
-            throw new HTTPException(500, { message: e.message })
-        } else {
-            throw new HTTPException(500, { message: 'Internal server error' })
-        }
-    }
+    return c.json({ ...updatedCategory }, 200)
+  } catch (e) {
+    throw toHttpError(e)
+  }
 })
-
 
 export default category
